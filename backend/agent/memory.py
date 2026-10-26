@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 
 SENSITIVE = [
-    (r"\b(?:\d[ -]?){13,19}\b", "sensitive: payment card number"),
+    (r"\b\d(?:[ -]?\d){12,18}\b", "sensitive: payment card number"),
     (r"\b\d{4}\s?\d{4}\s?\d{4}\b", "sensitive: ID number"),
     (r"\b(password|passcode|pin|otp|cvv)\b", "sensitive: credentials"),
     (r"\b(bank account|ifsc|account number)\b", "sensitive: bank details"),

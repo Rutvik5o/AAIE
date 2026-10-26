@@ -21,8 +21,8 @@ class LLM:
                     model=self.model, messages=messages, tools=tools, tool_choice="auto", temperature=0.1
                 )
                 break
-            except RateLimitError:
-                time.sleep(5 * (attempt + 1))
+            except RateLimitError as e:
+                time.sleep(float(e.response.headers.get("retry-after", 5 * (attempt + 1))))
             except BadRequestError:  # model produced a malformed tool call; ask again
                 if attempt == 3:
                     raise

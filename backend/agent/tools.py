@@ -115,9 +115,19 @@ TOOL_SCHEMAS = [
         "Remember a useful long-term fact about the student for future sessions (programme, contact "
         "preference, topic of interest). Never use for passwords, card numbers, OTPs, health or temporary feelings.",
         {
-            "key": {"type": "string", "enum": ["programme", "contact_preference", "preference", "topic_of_interest", "other"]},
-            "value": {"type": "string", "description": "The fact in a few words"},
+            "facts": {
+                "type": "array",
+                "description": "One item per fact",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "key": {"type": "string", "enum": ["programme", "contact_preference", "preference", "topic_of_interest", "other"]},
+                        "value": {"type": "string", "description": "The fact in a few words"},
+                    },
+                    "required": ["key", "value"],
+                },
+            }
         },
-        ["key", "value"],
+        ["facts"],
     ),
 ]

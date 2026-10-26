@@ -1,6 +1,7 @@
 """The agent loop: select context -> call LLM -> run tools -> repeat -> answer.
 Write actions pause the loop until the student approves them."""
 import json
+import re
 import secrets
 from datetime import date
 
@@ -43,6 +44,11 @@ class Agent:
             trace.memory_blocked.append({"text": redact(message)[:100], "reason": reason})
             self.audit.log(student_id, "memory_blocked", {"reason": reason})
         safe_message = redact(message)
+
+        # Authorisation: requests that name another student's ID are recorded for audit
+        other_ids = {i.upper() for i in re.findall(r"\bS\d{4}\b", message, re.IGNORECASE)} - {student_id}
+        if other_ids:
+            self.audit.log(student_id, "access_denied", {"requested": sorted(other_ids)})
 
         # Context selection: only relevant memory + top-k policy chunks + recent history
         trace.memory_used = self.memory.get(student_id)
@@ -109,11 +115,17 @@ class Agent:
 
     def _execute(self, name: str, args: dict, student_id: str, trace: Trace) -> dict:
         if name == "save_memory":
-            saved, reason = self.memory.save(student_id, args.get("key", "other"), args.get("value", ""))
-            outcome = {"ok": saved, "result": reason} if saved else {"ok": False, "error": f"Not stored ({reason})"}
-            (trace.memory_saved if saved else trace.memory_blocked).append(
-                {"key": args.get("key"), "value": args.get("value")} if saved else {"text": redact(args.get("value", "")), "reason": reason})
-            self.audit.log(student_id, "memory_saved" if saved else "memory_blocked", {"key": args.get("key"), "reason": reason})
+            results = []
+            for fact in args.get("facts", []):
+                key, value = fact.get("key", "other"), fact.get("value", "")
+                saved, reason = self.memory.save(student_id, key, value)
+                results.append({"key": key, "stored": saved, "reason": reason})
+                if saved:
+                    trace.memory_saved.append({"key": key, "value": value})
+                else:
+                    trace.memory_blocked.append({"text": redact(value), "reason": reason})
+                self.audit.log(student_id, "memory_saved" if saved else "memory_blocked", {"key": key, "reason": reason})
+            outcome = {"ok": any(r["stored"] for r in results), "result": results}
         else:
             outcome = tools.run_tool(name, dict(args), student_id)
             event = "access_denied" if outcome.get("denied") else "tool_call" if outcome["ok"] else "tool_error"
@@ -128,7 +140,7 @@ class Agent:
         trace.approvals.append({"action_id": action_id, "tool": call["function"]["name"], "decision": "pending"})
         self.audit.log(student_id, "approval_requested", {"action_id": action_id, "tool": call["function"]["name"], "args": args})
 
-        summary = f"Create a {args.get('category', 'support')} ticket: \"{args.get('subject', 'Support request')}\""
+        summary = f"Create a support ticket ({args.get('category', 'other')}): \"{args.get('subject', 'Support request')}\""
         answer = f"I'd like to **{summary[0].lower() + summary[1:]}**. Please approve or reject this action below."
         result = self._finish(answer, messages, student_id, session_id, trace, keep_history=False)
         result["pending_action"] = {"action_id": action_id, "tool": call["function"]["name"], "args": args, "summary": summary}

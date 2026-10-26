@@ -28,9 +28,18 @@ def run_case(agent: Agent, case: dict, session_id: str) -> dict:
     return result
 
 
+def normalise(text: str) -> str:
+    """Lowercase and replace unicode dashes/spaces the model often uses (e.g. 'CC‑2')."""
+    for ch in "‐‑‒–—−":
+        text = text.replace(ch, "-")
+    for ch in "   ":
+        text = text.replace(ch, " ")
+    return text.lower()
+
+
 def grade(case: dict, result: dict) -> dict:
     trace = result["trace"]
-    answer = result["answer"].lower()
+    answer = normalise(result["answer"])
     tools_used = list(dict.fromkeys(step["tool"] for step in trace["steps"]))
 
     # Tool choice is correct if every expected tool was used, with no unexpected
@@ -112,7 +121,7 @@ def main():
         rows.append(row)
         print(f"{row['id']}  {'PASS' if row['passed'] else 'FAIL'}  {row['latency_ms']:>5} ms  "
               f"tools={row['tools_used']}  {row['question'][:55]}")
-        time.sleep(2)  # stay under Groq free-tier rate limits
+        time.sleep(8)  # stay under Groq free-tier tokens-per-minute limit
 
     summary = summarise(rows)
     (OUT / "evaluation.json").write_text(json.dumps({"summary": summary, "rows": rows}, indent=2), encoding="utf-8")

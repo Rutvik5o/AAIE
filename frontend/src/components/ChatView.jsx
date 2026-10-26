@@ -1,0 +1,129 @@
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Send, Sparkles } from "lucide-react";
+import Message from "./Message";
+
+const SUGGESTIONS = [
+  "What is my current fee status?",
+  "The payment portal failed. Can I pay on the next working day?",
+  "What is my scholarship status?",
+  "How do I change my course?",
+  "Raise a ticket: my hostel Wi-Fi is not working",
+];
+
+function TypingDots() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      className="glass rounded-2xl rounded-tl-sm px-4 py-3.5 w-fit flex gap-1.5"
+    >
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="w-2 h-2 rounded-full bg-indigo-300"
+          animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+    </motion.div>
+  );
+}
+
+function Welcome({ onPick }) {
+  return (
+    <div className="flex flex-col items-center justify-center text-center h-full py-10">
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring" }}
+        className="grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-xl shadow-indigo-500/30 mb-5"
+      >
+        <Sparkles size={30} />
+      </motion.div>
+      <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+        How can I help today?
+      </h2>
+      <p className="text-slate-400 text-sm mt-2 max-w-md">
+        Ask about fees, scholarships, courses or campus services. I can look up your records and raise tickets.
+      </p>
+      <div className="flex flex-wrap justify-center gap-2.5 mt-8 max-w-2xl">
+        {SUGGESTIONS.map((s, i) => (
+          <motion.button
+            key={s}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + i * 0.07 }}
+            whileHover={{ y: -3, scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => onPick(s)}
+            className="glass rounded-xl px-4 py-2.5 text-sm text-slate-200 hover:border-indigo-400/50 hover:bg-indigo-500/10 transition-colors"
+          >
+            {s}
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ChatView({ messages, sending, onSend, onDecide }) {
+  const [text, setText] = useState("");
+  const bottom = useRef(null);
+
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
+
+  function submit() {
+    if (!text.trim() || sending) return;
+    onSend(text);
+    setText("");
+  }
+
+  return (
+    <>
+      <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
+        <div className="max-w-3xl mx-auto space-y-5 h-full">
+          {messages.length === 0 && !sending ? (
+            <Welcome onPick={onSend} />
+          ) : (
+            messages.map((m, i) => (
+              <Message key={i} msg={m} busy={sending} onDecide={(ok) => onDecide(i, ok)} />
+            ))
+          )}
+          <AnimatePresence>{sending && <TypingDots />}</AnimatePresence>
+          <div ref={bottom} />
+        </div>
+      </div>
+
+      <div className="px-4 md:px-8 pb-5 pt-2">
+        <div className="max-w-3xl mx-auto glass rounded-2xl flex items-end gap-2 p-2 focus-within:border-indigo-400/50 transition">
+          <textarea
+            rows={1}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                submit();
+              }
+            }}
+            placeholder="Ask Campus Assist anything…"
+            className="flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-slate-500 max-h-40"
+          />
+          <motion.button
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
+            disabled={!text.trim() || sending}
+            onClick={submit}
+            className="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 disabled:opacity-40"
+          >
+            <Send size={17} />
+          </motion.button>
+        </div>
+      </div>
+    </>
+  );
+}

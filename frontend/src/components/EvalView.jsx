@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Target, Timer, ArrowDownToLine, ArrowUpFromLine, Wrench, Loader2, Terminal, RefreshCw } from "lucide-react";
 import * as api from "../api";
+import Logo from "./Logo";
 
 function StatCard({ icon: Icon, label, value, accent, delay, bar }) {
   return (
@@ -157,7 +158,13 @@ export default function EvalView({ onError }) {
     <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center">
-          <h2 className="text-xl font-bold text-gradient">Evaluation results</h2>
+          <div className="flex items-center gap-3">
+            <Logo size={36} />
+            <div>
+              <h2 className="text-xl font-bold text-gradient leading-tight">Evaluation results</h2>
+              <p className="text-xs text-muted">13 test cases · accuracy, tools, latency and tokens</p>
+            </div>
+          </div>
           <span className="ml-3 text-sm text-muted">
             {s.passed ?? rows.filter((r) => r.passed).length} / {s.total ?? rows.length} passed
           </span>

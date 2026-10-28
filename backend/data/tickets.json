@@ -109,6 +109,17 @@
       "status": "open",
       "created_at": "2026-10-26T16:49:57",
       "expected_response": "1 working day"
+    },
+    {
+      "ticket_id": "TKT-0011",
+      "student_id": "S1005",
+      "category": "other",
+      "subject": "Campus water issue",
+      "description": "Student reports issues with water supply on campus and requests assistance.",
+      "priority": "normal",
+      "status": "open",
+      "created_at": "2026-10-28T13:25:38",
+      "expected_response": "3 working days"
     }
   ]
 }

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck, ShieldX, RefreshCw, ChevronRight, Loader2 } from "lucide-react";
 import * as api from "../api";
 import { JsonBlock } from "./TracePanel";
+import Logo from "./Logo";
 
 const TONES = {
   brand: { pill: "bg-brand/10 text-brand border-brand/30", dot: "bg-brand ring-brand/20" },
@@ -112,7 +113,13 @@ export default function AuditView({ onError }) {
     <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <h2 className="text-xl font-bold text-gradient">Audit log</h2>
+          <div className="flex items-center gap-3">
+            <Logo size={36} />
+            <div>
+              <h2 className="text-xl font-bold text-gradient leading-tight">Audit log</h2>
+              <p className="text-xs text-muted">Every login, tool call, approval and memory event</p>
+            </div>
+          </div>
           {data && (
             <motion.span
               initial={{ scale: 0.8, opacity: 0 }}

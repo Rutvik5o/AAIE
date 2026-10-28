@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { GraduationCap, Plus, LogOut, X } from "lucide-react";
+import { Plus, LogOut, X } from "lucide-react";
+import { Brand } from "./Logo";
 import MemoryCard from "./MemoryCard";
 
 export default function Sidebar({ open, onClose, student, onLogout, sessionId, onNewSession, facts, onForget }) {
@@ -12,13 +13,7 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
   const content = (
     <div className="flex h-full flex-col gap-5 p-5 overflow-y-auto scroll-thin">
       <div className="flex items-center gap-3">
-        <div className="grid place-items-center w-10 h-10 rounded-xl bg-brand-gradient glow text-white">
-          <GraduationCap size={22} />
-        </div>
-        <div>
-          <h1 className="font-bold text-lg leading-tight tracking-tight text-fg">Campus Assist</h1>
-          <p className="text-xs text-muted">AI Student Support Agent</p>
-        </div>
+        <Brand />
         <button
           className="ml-auto md:hidden p-1.5 rounded-lg text-muted hover:text-fg hover:bg-surface-2/60 transition-colors"
           onClick={onClose}

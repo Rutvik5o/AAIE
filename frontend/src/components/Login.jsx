@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import { GraduationCap, KeyRound, LogIn, Loader2, Info } from "lucide-react";
+import { KeyRound, LogIn, Loader2, Info } from "lucide-react";
+import Logo from "./Logo";
 import * as api from "../api";
 import ThemeToggle from "./ThemeToggle";
 
@@ -55,12 +56,15 @@ export default function Login({ notice, onLogin, theme, onToggleTheme }) {
               initial={{ rotate: -20, scale: 0 }}
               animate={{ rotate: 0, scale: 1 }}
               transition={{ type: "spring", delay: 0.15 }}
-              className="grid place-items-center w-14 h-14 rounded-2xl bg-brand-gradient glow text-white mb-4"
+              className="mb-5"
             >
-              <GraduationCap size={28} />
+              <Logo size={72} animated />
             </motion.div>
-            <h1 className="text-2xl font-bold tracking-tight text-gradient">Campus Assist</h1>
-            <p className="text-sm text-muted mt-1">Sign in to your student support agent</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-fg">
+              Campus <span className="text-gradient">Assist</span>
+            </h1>
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">AI Student Support Agent</p>
+            <p className="text-sm text-muted mt-3">Sign in to get help with fees, scholarships and courses</p>
           </div>
 
           <label className="block text-xs font-medium text-muted mb-1.5">Student ID</label>

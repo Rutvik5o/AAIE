@@ -10,6 +10,7 @@ import AuditView from "./components/AuditView";
 import Toast from "./components/Toast";
 import Background from "./components/Background";
 import ThemeToggle from "./components/ThemeToggle";
+import Logo from "./components/Logo";
 import { useTheme } from "./theme";
 
 const TABS = [
@@ -174,6 +175,7 @@ export default function App() {
           <button className="md:hidden p-2 rounded-lg glass text-muted hover:text-fg" onClick={() => setMenuOpen(true)}>
             <Menu size={18} />
           </button>
+          <Logo size={34} className="md:hidden" />
           <nav className="glass rounded-xl p-1 flex gap-1">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button

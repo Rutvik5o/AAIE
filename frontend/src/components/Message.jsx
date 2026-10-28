@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, ChevronDown, Clock, Coins, Search, Sparkles, Wrench, Zap } from "lucide-react";
+import { ChevronDown, Clock, Coins, Search, Sparkles, Wrench, Zap } from "lucide-react";
 import Markdown from "./Markdown";
 import TracePanel from "./TracePanel";
 import ApprovalCard from "./ApprovalCard";
+import Logo from "./Logo";
 
 function Badge({ icon: Icon, children, className = "" }) {
   return (
@@ -66,9 +67,7 @@ export default function Message({ msg, busy, onDecide }) {
       className={`flex gap-3 ${isUser ? "justify-end" : ""}`}
     >
       {!isUser && (
-        <div className="grid place-items-center w-8 h-8 shrink-0 rounded-lg bg-brand-gradient glow text-white">
-          <Bot size={16} />
-        </div>
+        <Logo size={32} animated={msg.streaming} />
       )}
 
       <div className={`min-w-0 ${isUser ? "max-w-[80%]" : "flex-1"}`}>

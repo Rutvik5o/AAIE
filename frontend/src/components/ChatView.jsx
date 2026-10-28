@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
+import Logo from "./Logo";
 import Message from "./Message";
 
 const SUGGESTIONS = [
@@ -18,9 +19,9 @@ function Welcome({ onPick }) {
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring" }}
-        className="grid place-items-center w-16 h-16 rounded-2xl bg-brand-gradient glow text-white mb-5"
+        className="mb-5"
       >
-        <Sparkles size={30} />
+        <Logo size={68} animated />
       </motion.div>
       <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gradient">
         How can I help today?

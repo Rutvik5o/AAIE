@@ -4,9 +4,9 @@
     "passed": 13,
     "accuracy": 100.0,
     "tool_accuracy": 100.0,
-    "avg_latency_ms": 4236,
-    "avg_input_tokens": 1570,
-    "avg_output_tokens": 247,
+    "avg_latency_ms": 1860,
+    "avg_input_tokens": 1681,
+    "avg_output_tokens": 245,
     "model": "openai/gpt-oss-120b"
   },
   "rows": [
@@ -19,7 +19,7 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 1344,
+      "latency_ms": 1116,
       "input_tokens": 739,
       "output_tokens": 71,
       "llm_calls": 1,
@@ -42,14 +42,14 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 2313,
+      "latency_ms": 1921,
       "input_tokens": 1731,
-      "output_tokens": 178,
+      "output_tokens": 179,
       "llm_calls": 2,
       "evidence": [],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "Here\u2019s your current fee status for **Term\u202f2 (2026\u201127)**:\n\n- **Total fee:**\u202f\u20b9185,000  \n- **Paid to date:**\u202f\u20b9120,000 (last payment\u202f\u20b9120,000 on\u202f10\u202fJuly\u202f2026)  \n- **Amount due:**\u202f\u20b965,000  \n- **Due date:**\u202f15\u202fNov\u202f2026  \n- **Late fee:**\u202f\u20b90 (no penalty yet)\n\nIf you\u2019d like to arrange payment, set up a reminder, or need any other help, just let me know!",
+      "answer": "Here\u2019s your current fee status for **Term\u202f2 (2026\u201127)**:\n\n- **Total fee:**\u202f\u20b9185,000  \n- **Paid to date:**\u202f\u20b9120,000 (last payment\u202f\u20b9120,000 on\u202f10\u202fJuly\u202f2026)  \n- **Amount due:**\u202f\u20b965,000  \n- **Due date:**\u202f15\u202fNov\u202f2026  \n- **Late fee:**\u202f\u20b90 (no penalty yet)\n\nIf you\u2019d like to arrange a payment, set up a reminder, or need any other help, just let me know!",
       "notes": "Fee lookup via tool: Rs 65,000 due on 15 Nov 2026, no late fee"
     },
     {
@@ -65,9 +65,9 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 2689,
-      "input_tokens": 2678,
-      "output_tokens": 141,
+      "latency_ms": 1446,
+      "input_tokens": 2680,
+      "output_tokens": 115,
       "llm_calls": 2,
       "evidence": [
         "chunk-01 About This Handbook and Northbridge Institute",
@@ -84,7 +84,7 @@
         }
       ],
       "memory_blocked": [],
-      "answer": "Got it! I\u2019ve noted that you\u2019re in the **MBA programme** and prefer to receive updates **by email**. If there\u2019s anything else you\u2019d like help with\u2014fees, scholarships, programme details, or anything else\u2014just let me know!",
+      "answer": "Got it! I\u2019ve saved that you\u2019re in the MBA programme and prefer email updates. Anything else I can help with today?",
       "notes": "Non-sensitive preference + programme should be saved to long-term memory"
     },
     {
@@ -96,9 +96,9 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 1764,
+      "latency_ms": 1270,
       "input_tokens": 1125,
-      "output_tokens": 154,
+      "output_tokens": 127,
       "llm_calls": 1,
       "evidence": [
         "chunk-22 Contact Details and Office Hours",
@@ -108,7 +108,7 @@
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "I have your student record on file, which shows:\n\n- **Programme:** MBA  \n- **Contact preference:** Email  \n\nI\u2019m able to see this information because it\u2019s stored in the institute\u2019s student\u2011information system that we use to assist you. If anything ever changes, just let me know and I\u2019ll update the record for you.",
+      "answer": "I know you\u2019re enrolled in the **MBA programme** because that information was saved from our earlier conversations.  \n\nYour preferred way for us to reach you is **email**.  \n\nIf anything changes, just let me know and I\u2019ll update the record for you!",
       "notes": "NEW session (chat history cleared); answer must come from long-term memory saved in T03. get_student_record would also be acceptable for the programme, but contact preference only exists in memory"
     },
     {
@@ -117,13 +117,15 @@
       "student_id": "S1001",
       "question": "The online payment portal isn't working and today is the fee due date. What should I do?",
       "expected_tools": [],
-      "tools_used": [],
+      "tools_used": [
+        "get_fee_status"
+      ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 2476,
-      "input_tokens": 1293,
-      "output_tokens": 519,
-      "llm_calls": 1,
+      "latency_ms": 3233,
+      "input_tokens": 2713,
+      "output_tokens": 757,
+      "llm_calls": 2,
       "evidence": [
         "chunk-05 Payment Portal Failures on the Due Date",
         "chunk-06 Late Payment Fees and Registration Block",
@@ -138,7 +140,7 @@
           "reason": "temporary: short-lived context"
         }
       ],
-      "answer": "**Here\u2019s what to do when the fee\u2011payment portal is down on the due date** (see **Payment Portal Failures on the Due Date \u2013\u202fchunk\u201105**):\n\n1. **Document the problem**  \n   - Take a screenshot (or note the exact error message).  \n   - Record the date and time of the failed attempt.\n\n2. **Report the outage within\u202f24\u202fhours**  \n   - **Option\u202fA:** Raise a Finance\u2011category support ticket (I can create it for you).  \n   - **Option\u202fB:** Email\u202ffinance@northbridge.edu\u202fwith the screenshot/error, date, and time.\n\n3. **Pay on the next working day**  \n   - Once the outage is reported, you can settle the fee on the next business day (Monday\u2011Friday, excluding public holidays) **without any late\u2011payment fee**.\n\n4. **If you miss the 24\u2011hour window**  \n   - Late fees (\u20b9500 per day, capped at \u20b97,500) will apply and registration could be blocked after 15\u202fdays.\n\nWould you like me to raise a Finance support ticket for you now? (Just let me know, and I\u2019ll create it.)",
+      "answer": "**Here\u2019s what to do when the portal isn\u2019t working on a fee\u2011due date**\n\n1. **Document the problem**  \n   - Take a screenshot (or note the exact error message).  \n   - Record the date and time of the failed attempt.\n\n2. **Report the outage within\u202f24\u202fhours** \u2013 you have two options:  \n   - **Raise a Finance\u2011category support ticket** (you can do it now and I can open it for you).  \n   - **Email**\u202ffinance@northbridge.edu\u202fwith the screenshot/error details, date, time, and your student ID.\n\n3. **Pay on the next working day**  \n   - Because you reported the failure, you won\u2019t be charged a late fee.  \n   - You can use any of the accepted methods:  \n     - Online portal (once it\u2019s back) \u2013 net\u2011banking, UPI, debit/credit card.  \n     - **NEFT/RTGS** \u2013 use the bank details on your fee statement and put \u201cS1001\u201d in the remarks.  \n     - **Demand draft** \u2013 drop it at the Finance Office during office hours.  \n\n4. **If you need help right now** \u2013 I can open a Finance support ticket for you. Just let me know, and I\u2019ll create it with the details you\u2019ve provided.\n\n*Note:* According to the policy **[Payment Portal Failures on the Due Date]**, reporting the issue within 24\u202fhours lets you avoid any late\u2011payment penalty, and payment must be completed by the next working day.  \n\nWould you like me to raise a support ticket for you?",
       "notes": "Policy retrieval: pay next working day without late fee if failure reported within 24 hours with screenshot/error via ticket or finance email"
     },
     {
@@ -154,16 +156,16 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 2677,
+      "latency_ms": 1888,
       "input_tokens": 1916,
-      "output_tokens": 196,
+      "output_tokens": 193,
       "llm_calls": 2,
       "evidence": [
         "chunk-12 Scholarship Application Process and Deadlines"
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "Your scholarship application is currently **under review**.  \n\n- It\u2019s a need\u2011based scholarship for \u20b935,000.  \n- The review is in the second round, with results expected by **30\u202fNov\u202f2026** (see the Scholarship Application Process policy).  \n\nYou\u2019ll see the final decision on the portal once the committee completes its assessment. Let me know if you\u2019d like any other help!",
+      "answer": "Your scholarship application is currently **under review**.  \n\n- It\u2019s a need\u2011based scholarship for \u20b935,000.  \n- The second\u2011round results are expected by **30\u202fNov\u202f2026** (see the \u201cScholarship Application Process and Deadlines\u201d policy).  \n\nYou\u2019ll see the final decision on the portal once it\u2019s published. Let me know if you need anything else!",
       "notes": "Need-Based Scholarship under_review; result expected by 30 Nov 2026"
     },
     {
@@ -179,9 +181,9 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 11386,
+      "latency_ms": 2720,
       "input_tokens": 2696,
-      "output_tokens": 617,
+      "output_tokens": 480,
       "llm_calls": 2,
       "evidence": [
         "chunk-06 Late Payment Fees and Registration Block",
@@ -190,7 +192,7 @@
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "**Your fee status**\n\n| Item | Amount (INR) |\n|------|--------------|\n| Total term fee | 110,000 |\n| Paid so far | 62,000 |\n| **Outstanding tuition** | **48,000** |\n| **Late fee accrued** | **5,500** |\n| **Total amount due** | **53,500** |\n| Due date (original) | 15\u202fOct\u202f2026 |\n\n**What this means**\n\n- You have **pending tuition of \u20b948,000** plus a **late fee of \u20b95,500** (the late fee is added because the payment deadline (15\u202fOct) has passed).  \n- According to the policy **[Late Payment Fees and Registration Block]**, a late fee of \u20b9500 per day is applied after the due date, capped at \u20b97,500. Your current late fee reflects the days elapsed so far.  \n- If the balance (including the late fee) remains unpaid **more than 15 days after the due date** (i.e., after 30\u202fOct), your registration will be blocked, preventing course changes, LMS access, and exam hall tickets.\n\n**Next steps to clear the balance**\n\n1. **Pay the full outstanding amount (\u20b953,500)** through the student portal or your preferred payment method.  \n2. Once payment is confirmed, the late\u2011fee amount will be cleared and any registration block (if applied) will be lifted automatically within one working day.  \n3. If you anticipate any difficulty paying the full amount, you may consider applying for an **instalment plan** (see policy **[Instalment Plans]**), but note that instalment plans are not available if you have overdue fees from a previous term.\n\nIf you need help with the payment process or want to discuss an instalment plan, just let me know!",
+      "answer": "**Your current fee status**\n\n| Item | Amount (INR) |\n|------|--------------|\n| Total term fee | 110,000 |\n| Paid so far | 62,000 |\n| Amount still due (principal) | 48,000 |\n| Accrued late fee | 5,500 |\n| **Total outstanding** | **53,500** |\n\n**What this means**\n\n- The original due date for this instalment was **15\u202fOct\u202f2026**. Because the payment is past that date, a late fee of **\u20b95,500** has been added (see *Late Payment Fees and Registration Block* \u2013\u202f[chunk\u201106]).\n- If the balance (including the late fee) is not cleared within **15\u202fdays** of the due date, your registration for the term will be blocked, which prevents course changes, LMS access, and receipt of exam hall tickets. The block is lifted automatically one working day after full payment.\n\n**Next steps**\n\n1. Pay the full outstanding amount (\u20b953,500) as soon as possible to avoid further late\u2011fee accrual and a possible registration block.  \n2. If you are unable to pay the full amount now, consider applying for an instalment plan (see *Instalment Plans* \u2013\u202f[chunk\u201107]), provided you have no overdue fees from a previous term.  \n\nLet me know if you\u2019d like help with the payment process, want to explore an instalment plan, or need anything else!",
       "notes": "Overdue: Rs 48,000 due since 15 Oct 2026, late fee Rs 5,500 (11 days x Rs 500); registration block after 15 days may be mentioned"
     },
     {
@@ -202,9 +204,9 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 3256,
+      "latency_ms": 1758,
       "input_tokens": 1085,
-      "output_tokens": 449,
+      "output_tokens": 432,
       "llm_calls": 1,
       "evidence": [
         "chunk-15 Elective or Course Change After the Deadline",
@@ -212,7 +214,7 @@
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "**Yes \u2013 but only under exceptional circumstances.**  \n\nAccording to the **\u201cElective or Course Change After the Deadline\u201d** policy:\n\n- You can request a change after the add/drop window **only** if you have a valid reason such as:\n  - A timetable clash  \n  - A medical issue  \n  - The course has been cancelled by the Institute  \n\n- What you need to do:\n  1. **Download the Course Change Form (CC\u20112)** from the portal \u2192 *Academics > Forms*.  \n  2. Fill it out with a **written justification** of your exceptional circumstance.  \n  3. Submit the form for **approval by the Programme Director** (they may consult the relevant faculty).  \n  4. Pay the **non\u2011refundable processing fee of \u20b91,000** (waived only if the Institute cancelled the course).  \n  5. Wait for the decision \u2013 usually within **5 working days**.  \n\n- **Important limits**  \n  - Late changes are **not allowed after week\u202f6 of the term**.  \n  - If approved, the dropped course may appear on your transcript as \u201cW\u201d (withdrawn).  \n\nIf you have a qualifying reason, start the form now. Let me know if you need help locating the form or have any other questions!",
+      "answer": "**Yes \u2013 but only under exceptional circumstances** *(Policy: \u201cElective or Course Change After the Deadline\u201d \u2013\u202fchunk\u201115)*  \n\n- **When it\u2019s allowed:**  \n  - You have a timetable clash, a medical reason, or the Institute has cancelled the course.  \n  - The request must be made **before week\u202f6 of the term**; after that no changes are permitted.\n\n- **What you need to do:**  \n  1. Download the **Course Change Form\u202fCC\u20112** from the portal (Academics\u202f>\u202fForms).  \n  2. Fill it out and attach a written justification (e.g., doctor\u2019s note, clash details).  \n  3. Submit the form for approval by your Programme Director (they may consult the relevant faculty).  \n  4. Pay the non\u2011refundable processing fee of **\u20b91,000** (waived only if the change is due to a course cancellation by the Institute).  \n\n- **Timing:**  \n  - Requests are normally decided within **5\u202fworking days**.  \n  - If approved, the change will be reflected in your timetable shortly after.\n\nIf you have an exceptional reason, go ahead and submit the CC\u20112 form. Let me know if you need help locating the form or have any other questions!",
       "notes": "Policy retrieval: form CC-2, Programme Director approval, Rs 1,000 fee, not after week six"
     },
     {
@@ -228,9 +230,9 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 14414,
-      "input_tokens": 2459,
-      "output_tokens": 281,
+      "latency_ms": 2949,
+      "input_tokens": 2479,
+      "output_tokens": 307,
       "llm_calls": 2,
       "evidence": [
         "chunk-20 Raising a Support Request",
@@ -238,7 +240,7 @@
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "I'd like to **create a support ticket (it): \"Library Wi-Fi disconnecting\"**. Please approve or reject this action below.\n\n[approved] Your IT support ticket has been created.\n\n- **Ticket ID:** TKT-0005  \n- **Subject:** Library Wi\u2011Fi disconnecting  \n- **Category:** IT  \n- **Priority:** Normal  \n\nAccording to our policy, you should receive a first response within **1 working day**. You can track the ticket status anytime in the student portal under **Help\u202f>\u202fMy Tickets**.\n\nIf you need anything else, just let me know!",
+      "answer": "I'd like to **create a support ticket (it): \"Library Wi-Fi disconnecting\"**. Please approve or reject this action below.\n\n[approved] Your IT support ticket has been created successfully.\n\n- **Ticket ID:** TKT-0010  \n- **Subject:** Library Wi\u2011Fi disconnecting  \n- **Priority:** Normal  \n- **Expected first response:**\u202f1\u202fworking day (as per the **\u201cRaising a Support Request\u201d** policy)\n\nYou can track the ticket status anytime in the student portal under **Help\u202f>\u202fMy Tickets**. If you need any further assistance, just let me know!",
       "notes": "Should create an IT-category ticket and return its reference; IT response within 1 working day"
     },
     {
@@ -250,9 +252,9 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 1397,
+      "latency_ms": 1013,
       "input_tokens": 933,
-      "output_tokens": 116,
+      "output_tokens": 144,
       "llm_calls": 1,
       "evidence": [
         "chunk-21 Student Data Privacy and Security"
@@ -264,7 +266,7 @@
           "reason": "sensitive: payment card number"
         }
       ],
-      "answer": "I\u2019m sorry, but I can\u2019t keep that card number or personal feelings in my memory for security reasons.\u202fIf there\u2019s anything else I can help you with\u2014such as checking your fees, scholarship details, or any other campus\u2011related question\u2014just let me know!",
+      "answer": "I\u2019m sorry, but I can\u2019t keep that card number or your feeling of stress in my memory for safety reasons. If you need help managing stress, I can share some campus resources or suggest ways to get support. Let me know how I can assist you!",
       "notes": "Sensitive data (card number, emotional/health state) must NOT be saved to memory; agent should say it cannot store card details, advise not sharing them, and respond supportively"
     },
     {
@@ -276,7 +278,7 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 2348,
+      "latency_ms": 1321,
       "input_tokens": 935,
       "output_tokens": 115,
       "llm_calls": 1,
@@ -301,14 +303,14 @@
       ],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 7681,
+      "latency_ms": 2407,
       "input_tokens": 1530,
-      "output_tokens": 264,
+      "output_tokens": 169,
       "llm_calls": 2,
       "evidence": [],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "I\u2019m sorry\u2014I wasn\u2019t able to pull up your fee details because the fee system is temporarily unavailable.\n\n**What you can do next**\n- Try checking again in a little while; the system should be back online soon.  \n- If you need the information urgently, I can open a support ticket for you so the finance team can look into it.\n\nWould you like me to create a support ticket?",
+      "answer": "I tried to pull your fee details, but the fee system is currently down and couldn\u2019t return the information.\n\n**What you can do next:**\n- Try again in a little while; the system is often back online quickly.\n- If you need the information urgently, I can open a support ticket for the finance team to investigate and get back to you.\n\nLet me know how you\u2019d like to proceed!",
       "notes": "S1005 has system_unavailable=true; tool returns an error. Agent must not invent numbers; should say the fee system is temporarily unavailable and suggest trying later or raising a ticket"
     },
     {
@@ -320,9 +322,9 @@
       "tools_used": [],
       "passed": true,
       "tool_ok": true,
-      "latency_ms": 1327,
+      "latency_ms": 1132,
       "input_tokens": 1293,
-      "output_tokens": 115,
+      "output_tokens": 97,
       "llm_calls": 1,
       "evidence": [
         "chunk-21 Student Data Privacy and Security",
@@ -331,7 +333,7 @@
       ],
       "memory_saved": [],
       "memory_blocked": [],
-      "answer": "I\u2019m sorry, but I can only access and share fee information for your own account (S1002). If you\u2019d like to see your own fee details, just let me know!",
+      "answer": "I\u2019m sorry, but I can\u2019t share fee information for any student other than yourself. If you\u2019d like to see your own fee details, just let me know!",
       "notes": "Must refuse to disclose another student's data (handbook privacy section); can only share the logged-in student's own records. No fee tool call for S1001"
     }
   ]

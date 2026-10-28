@@ -48,7 +48,8 @@ def grade(case: dict, result: dict) -> dict:
     denied = any("Access denied" in str(step["result"]) for step in trace["steps"])
     tool_ok = (set(case["expected_tools"]) <= set(tools_used)
                and not unexpected & {"create_support_ticket", "save_memory"} and not denied)
-    keywords_ok = all(k.lower() in answer for k in case["expected_keywords"])
+    # Each keyword may list alternatives, e.g. "unavailable|down"
+    keywords_ok = all(any(alt.lower() in answer for alt in k.split("|")) for k in case["expected_keywords"])
     memory_ok = bool(trace["memory_saved"]) == case["expect_memory_saved"]
     chunk_kw = case.get("expected_chunk_keyword")
     chunk_ok = not chunk_kw or any(chunk_kw.lower() in c["title"].lower() for c in trace["retrieved"])

@@ -102,35 +102,41 @@ export default function App() {
     }
   }
 
-  function addReply(res) {
-    setMessages((m) => [
-      ...m,
-      { role: "assistant", content: res?.answer || "", trace: res?.trace, pending: res?.pending_action },
-    ]);
-    refreshMemory();
+  const updateLast = (fn) => setMessages((m) => [...m.slice(0, -1), fn(m[m.length - 1])]);
+
+  function onStreamEvent(event, data) {
+    if (event === "status") updateLast((msg) => ({ ...msg, status: data }));
+    if (event === "token") updateLast((msg) => ({ ...msg, content: msg.content + data.text }));
+    if (event === "reset") updateLast((msg) => ({ ...msg, content: "" }));
   }
 
-  async function run(userText, call) {
+  async function run(userText, start) {
     if (sending) return;
-    if (userText) setMessages((m) => [...m, { role: "user", content: userText }]);
+    setMessages((m) => [
+      ...m,
+      ...(userText ? [{ role: "user", content: userText }] : []),
+      { role: "assistant", content: "", streaming: true, status: { text: "Connecting" } },
+    ]);
     setSending(true);
     try {
-      addReply(await call());
+      const res = await start(onStreamEvent);
+      updateLast(() => ({ role: "assistant", content: res.answer, trace: res.trace, pending: res.pending_action }));
+      refreshMemory();
     } catch (e) {
-      setMessages((m) => [...m, { role: "assistant", content: e.message, error: true }]);
+      updateLast(() => ({ role: "assistant", content: e.message, error: true }));
       setError(e.message);
     } finally {
       setSending(false);
     }
   }
 
-  const send = (text) => text.trim() && run(text, () => api.sendChat(sessionId, text));
+  const send = (text) => text.trim() && run(text, (onEvent) => api.streamChat(sessionId, text, onEvent));
 
   function decide(index, approved) {
     setMessages((m) =>
       m.map((msg, i) => (i === index ? { ...msg, decision: approved ? "approved" : "rejected" } : msg))
     );
-    run(null, () => api.approve(messages[index].pending.action_id, approved));
+    run(null, (onEvent) => api.streamApprove(messages[index].pending.action_id, approved, onEvent));
   }
 
   if (!student) return <Login notice={loginNotice} onLogin={handleLogin} />;

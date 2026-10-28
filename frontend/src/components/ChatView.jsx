@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Send, Sparkles } from "lucide-react";
 import Message from "./Message";
 
@@ -10,26 +10,6 @@ const SUGGESTIONS = [
   "How do I change my course?",
   "Raise a ticket: my hostel Wi-Fi is not working",
 ];
-
-function TypingDots() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      className="glass rounded-2xl rounded-tl-sm px-4 py-3.5 w-fit flex gap-1.5"
-    >
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="w-2 h-2 rounded-full bg-indigo-300"
-          animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
-        />
-      ))}
-    </motion.div>
-  );
-}
 
 function Welcome({ onPick }) {
   return (
@@ -73,7 +53,7 @@ export default function ChatView({ messages, sending, onSend, onDecide }) {
   const bottom = useRef(null);
 
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: "smooth" });
+    bottom.current?.scrollIntoView({ behavior: sending ? "auto" : "smooth", block: "end" });
   }, [messages, sending]);
 
   function submit() {
@@ -86,14 +66,13 @@ export default function ChatView({ messages, sending, onSend, onDecide }) {
     <>
       <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
         <div className="max-w-3xl mx-auto space-y-5 h-full">
-          {messages.length === 0 && !sending ? (
+          {messages.length === 0 ? (
             <Welcome onPick={onSend} />
           ) : (
             messages.map((m, i) => (
               <Message key={i} msg={m} busy={sending} onDecide={(ok) => onDecide(i, ok)} />
             ))
           )}
-          <AnimatePresence>{sending && <TypingDots />}</AnimatePresence>
           <div ref={bottom} />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, ChevronDown, Clock, Coins, Wrench } from "lucide-react";
+import { Bot, ChevronDown, Clock, Coins, Search, Sparkles, Wrench, Zap } from "lucide-react";
 import Markdown from "./Markdown";
 import TracePanel from "./TracePanel";
 import ApprovalCard from "./ApprovalCard";
@@ -11,6 +11,43 @@ function Badge({ icon: Icon, children, className = "" }) {
       {Icon && <Icon size={11} />}
       {children}
     </span>
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex gap-1.5 py-1">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="w-2 h-2 rounded-full bg-indigo-300"
+          animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+    </span>
+  );
+}
+
+// Live "what the agent is doing" line shown while a reply streams
+function StatusLine({ status }) {
+  const Icon = status?.tool ? Wrench : status?.text?.startsWith("Searching") ? Search : Sparkles;
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={status?.text}
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 8 }}
+        transition={{ duration: 0.2 }}
+        className="flex items-center gap-2 mb-2 text-xs text-indigo-200"
+      >
+        <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
+          <Icon size={13} />
+        </motion.span>
+        <span className="shimmer-text">{status?.text}…</span>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -35,6 +72,7 @@ export default function Message({ msg, busy, onDecide }) {
       )}
 
       <div className={`min-w-0 ${isUser ? "max-w-[80%]" : "flex-1"}`}>
+        {msg.streaming && <StatusLine status={msg.status} />}
         <div
           className={
             isUser
@@ -42,7 +80,16 @@ export default function Message({ msg, busy, onDecide }) {
               : `rounded-2xl rounded-tl-sm px-4 py-3 text-sm ${msg.error ? "border border-rose-500/30 bg-rose-500/10 text-rose-200" : "glass text-slate-200"}`
           }
         >
-          {isUser ? msg.content : <Markdown text={msg.content} />}
+          {isUser ? (
+            msg.content
+          ) : msg.streaming && !msg.content ? (
+            <TypingDots />
+          ) : (
+            <>
+              <Markdown text={msg.content} />
+              {msg.streaming && <span className="stream-cursor" />}
+            </>
+          )}
         </div>
 
         {msg.pending && <ApprovalCard action={msg.pending} decision={msg.decision} busy={busy} onDecide={onDecide} />}
@@ -51,6 +98,9 @@ export default function Message({ msg, busy, onDecide }) {
           <>
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               {trace.latency_ms != null && <Badge icon={Clock}>{(trace.latency_ms / 1000).toFixed(1)}s</Badge>}
+              {trace.first_token_ms != null && (
+                <Badge icon={Zap}>first token {(trace.first_token_ms / 1000).toFixed(1)}s</Badge>
+              )}
               {(tokens.input != null || tokens.output != null) && (
                 <Badge icon={Coins}>
                   in {(tokens.input ?? 0).toLocaleString()} / out {(tokens.output ?? 0).toLocaleString()}

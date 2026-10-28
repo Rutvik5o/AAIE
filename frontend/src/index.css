@@ -27,6 +27,33 @@ body {
   z-index: 0;
 }
 
+/* Streaming: blinking cursor and shimmering status text */
+.stream-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 15px;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+  background: #a5b4fc;
+  animation: blink 0.9s steps(2) infinite;
+}
+@keyframes blink {
+  to { opacity: 0; }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #a5b4fc 0%, #ffffff 50%, #a5b4fc 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
 .scroll-thin::-webkit-scrollbar {
   width: 6px;
   height: 6px;

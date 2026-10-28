@@ -29,7 +29,8 @@ class Agent:
         self.sessions[session_id] = {"student_id": student_id, "history": []}
         return session_id
 
-    def chat(self, student_id: str, session_id: str, message: str) -> dict:
+    def chat(self, student_id: str, session_id: str, message: str, emit=None) -> dict:
+        """emit(event, data) is optional; when given, progress and answer tokens are streamed through it."""
         session = self.sessions.get(session_id)
         if not session or session["student_id"] != student_id:
             session_id = self.new_session(student_id)
@@ -51,6 +52,8 @@ class Agent:
             self.audit.log(student_id, "access_denied", {"requested": sorted(other_ids)})
 
         # Context selection: only relevant memory + top-k policy chunks + recent history
+        if emit:
+            emit("status", {"text": "Searching the student handbook"})
         trace.memory_used = self.memory.get(student_id)
         trace.retrieved = self.retriever.search(safe_message)
         student = tools.get_student(student_id)
@@ -59,9 +62,9 @@ class Agent:
         messages = [{"role": "system", "content": system}]
         messages += session["history"][-config.HISTORY_TURNS:]
         messages.append({"role": "user", "content": safe_message})
-        return self._run(messages, student_id, session_id, trace)
+        return self._run(messages, student_id, session_id, trace, emit)
 
-    def resolve_approval(self, student_id: str, action_id: str, approved: bool) -> dict:
+    def resolve_approval(self, student_id: str, action_id: str, approved: bool, emit=None) -> dict:
         paused = self.pending.pop(action_id, None)
         if not paused or paused["student_id"] != student_id:
             raise KeyError("Unknown or expired action")
@@ -69,6 +72,8 @@ class Agent:
         trace = Trace(student_id, f"[approval {action_id}: {'approved' if approved else 'rejected'}]")
         call, args = paused["call"], paused["args"]
         if approved:
+            if emit:
+                emit("status", {"text": f"Running {call['function']['name']}", "tool": call["function"]["name"]})
             outcome = tools.run_tool(call["function"]["name"], dict(args), student_id)
             trace.add_step(call["function"]["name"], args, outcome)
             self.audit.log(student_id, "approval_granted", {"action_id": action_id, "tool": call["function"]["name"]})
@@ -81,16 +86,24 @@ class Agent:
                                 "decision": "approved" if approved else "rejected"})
 
         messages = paused["messages"] + [{"role": "tool", "tool_call_id": call["id"], "content": json.dumps(outcome)}]
-        return self._run(messages, student_id, paused["session_id"], trace)
+        return self._run(messages, student_id, paused["session_id"], trace, emit)
 
-    def _run(self, messages: list[dict], student_id: str, session_id: str, trace: Trace) -> dict:
+    def _run(self, messages: list[dict], student_id: str, session_id: str, trace: Trace, emit=None) -> dict:
+        def on_token(text):
+            trace.mark_first_token()
+            emit("token", {"text": text})
+
         for _ in range(config.MAX_AGENT_STEPS):
-            reply, usage = self.llm.chat(messages, tools.TOOL_SCHEMAS)
+            if emit:
+                emit("status", {"text": "Thinking"})
+            reply, usage = self.llm.chat(messages, tools.TOOL_SCHEMAS, on_token if emit else None)
             trace.add_usage(usage)
             messages.append(reply)
 
             if not reply.get("tool_calls"):
                 return self._finish(reply["content"], messages, student_id, session_id, trace)
+            if emit and reply["content"]:
+                emit("reset", {})  # text streamed before a tool call is not the final answer
 
             # Run safe tools first; a tool needing approval pauses the loop
             calls = sorted(reply["tool_calls"], key=lambda c: c["function"]["name"] in config.TOOLS_NEEDING_APPROVAL)
@@ -107,6 +120,8 @@ class Agent:
                         messages.append({"role": "tool", "tool_call_id": extra["id"], "content": json.dumps(skipped)})
                     return self._request_approval(call, args, messages, student_id, session_id, trace)
 
+                if emit:
+                    emit("status", {"text": f"Calling {name}", "tool": name})
                 outcome = self._execute(name, args, student_id, trace)
                 messages.append({"role": "tool", "tool_call_id": call["id"], "content": json.dumps(outcome)})
 

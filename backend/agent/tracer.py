@@ -19,6 +19,11 @@ class Trace:
         self.approvals = []
         self.tokens = {"input": 0, "output": 0}
         self.llm_calls = 0
+        self.first_token_ms = None
+
+    def mark_first_token(self) -> None:
+        if self.first_token_ms is None:
+            self.first_token_ms = round((time.perf_counter() - self.start) * 1000)
 
     def add_usage(self, usage: dict) -> None:
         self.llm_calls += 1
@@ -37,6 +42,7 @@ class Trace:
             "memory_blocked": self.memory_blocked,
             "approvals": self.approvals,
             "latency_ms": round((time.perf_counter() - self.start) * 1000),
+            "first_token_ms": self.first_token_ms,
             "tokens": self.tokens,
             "llm_calls": self.llm_calls,
         }

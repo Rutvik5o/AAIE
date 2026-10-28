@@ -1,9 +1,12 @@
 """FastAPI server for the Student Support Agent.
 Run:  uvicorn main:app --reload --port 8000"""
 import json
+import queue
+import threading
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 import config
@@ -98,6 +101,42 @@ def approve(req: ApprovalRequest, student_id: str = Depends(current_student)):
         return agent.resolve_approval(student_id, req.action_id, req.approved)
     except KeyError:
         raise HTTPException(status_code=404, detail="This action has expired or does not exist")
+
+
+def stream_events(student_id: str, run) -> StreamingResponse:
+    """Runs the agent in a thread and streams its events as Server-Sent Events:
+    status (what the agent is doing), token (answer text), reset, done (answer + trace), error."""
+    events = queue.Queue()
+
+    def worker():
+        try:
+            events.put(("done", run(lambda event, data: events.put((event, data)))))
+        except Exception as e:
+            audit.log(student_id, "agent_error", {"error": str(e)})
+            events.put(("error", {"detail": f"The assistant is unavailable right now: {e}"}))
+        events.put(None)
+
+    def generate():
+        while (item := events.get()) is not None:
+            event, data = item
+            yield f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+    threading.Thread(target=worker, daemon=True).start()
+    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+
+
+@app.post("/api/chat/stream")
+def chat_stream(req: ChatRequest, student_id: str = Depends(current_student)):
+    if not req.message.strip():
+        raise HTTPException(status_code=400, detail="Message is empty")
+    return stream_events(student_id, lambda emit: agent.chat(student_id, req.session_id or "", req.message, emit))
+
+
+@app.post("/api/approve/stream")
+def approve_stream(req: ApprovalRequest, student_id: str = Depends(current_student)):
+    if req.action_id not in agent.pending:
+        raise HTTPException(status_code=404, detail="This action has expired or does not exist")
+    return stream_events(student_id, lambda emit: agent.resolve_approval(student_id, req.action_id, req.approved, emit))
 
 
 @app.get("/api/memory")

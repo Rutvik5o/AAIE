@@ -18,14 +18,14 @@ function Welcome({ onPick }) {
         initial={{ scale: 0.6, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring" }}
-        className="grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-xl shadow-indigo-500/30 mb-5"
+        className="grid place-items-center w-16 h-16 rounded-2xl bg-brand-gradient glow text-white mb-5"
       >
         <Sparkles size={30} />
       </motion.div>
-      <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+      <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gradient">
         How can I help today?
       </h2>
-      <p className="text-slate-400 text-sm mt-2 max-w-md">
+      <p className="text-muted text-sm mt-2 max-w-md">
         Ask about fees, scholarships, courses or campus services. I can look up your records and raise tickets.
       </p>
       <div className="flex flex-wrap justify-center gap-2.5 mt-8 max-w-2xl">
@@ -38,7 +38,7 @@ function Welcome({ onPick }) {
             whileHover={{ y: -3, scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => onPick(s)}
-            className="glass rounded-xl px-4 py-2.5 text-sm text-slate-200 hover:border-indigo-400/50 hover:bg-indigo-500/10 transition-colors"
+            className="glass rounded-xl px-4 py-2.5 text-sm text-fg hover:border-brand/40 hover:bg-brand/5 transition-colors"
           >
             {s}
           </motion.button>
@@ -78,7 +78,7 @@ export default function ChatView({ messages, sending, onSend, onDecide }) {
       </div>
 
       <div className="px-4 md:px-8 pb-5 pt-2">
-        <div className="max-w-3xl mx-auto glass rounded-2xl flex items-end gap-2 p-2 focus-within:border-indigo-400/50 transition">
+        <div className="max-w-3xl mx-auto glass rounded-2xl flex items-end gap-2 p-2 focus-within:border-brand/50 focus-within:ring-4 focus-within:ring-brand/10 transition">
           <textarea
             rows={1}
             value={text}
@@ -90,14 +90,14 @@ export default function ChatView({ messages, sending, onSend, onDecide }) {
               }
             }}
             placeholder="Ask Campus Assist anything…"
-            className="flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-slate-500 max-h-40"
+            className="flex-1 resize-none bg-transparent px-3 py-2.5 text-sm text-fg outline-none placeholder:text-subtle max-h-40"
           />
           <motion.button
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.92 }}
             disabled={!text.trim() || sending}
             onClick={submit}
-            className="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 disabled:opacity-40"
+            className="grid place-items-center w-10 h-10 rounded-xl bg-brand-gradient glow text-white disabled:opacity-40 disabled:shadow-none transition-opacity"
           >
             <Send size={17} />
           </motion.button>

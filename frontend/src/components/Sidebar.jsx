@@ -12,25 +12,28 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
   const content = (
     <div className="flex h-full flex-col gap-5 p-5 overflow-y-auto scroll-thin">
       <div className="flex items-center gap-3">
-        <div className="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-lg shadow-indigo-500/30">
+        <div className="grid place-items-center w-10 h-10 rounded-xl bg-brand-gradient glow text-white">
           <GraduationCap size={22} />
         </div>
         <div>
-          <h1 className="font-bold text-lg leading-tight">Campus Assist</h1>
-          <p className="text-xs text-slate-400">AI Student Support Agent</p>
+          <h1 className="font-bold text-lg leading-tight tracking-tight text-fg">Campus Assist</h1>
+          <p className="text-xs text-muted">AI Student Support Agent</p>
         </div>
-        <button className="ml-auto md:hidden text-slate-400" onClick={onClose}>
+        <button
+          className="ml-auto md:hidden p-1.5 rounded-lg text-muted hover:text-fg hover:bg-surface-2/60 transition-colors"
+          onClick={onClose}
+        >
           <X size={18} />
         </button>
       </div>
 
       <div className="glass rounded-2xl p-4 flex items-center gap-3">
-        <div className="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 font-bold text-sm">
+        <div className="grid place-items-center w-11 h-11 shrink-0 rounded-full bg-brand-gradient text-white font-bold text-sm shadow-sm">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold truncate">{student?.name}</p>
-          <p className="text-xs text-slate-400">
+          <p className="font-semibold truncate text-fg">{student?.name}</p>
+          <p className="text-xs text-muted truncate">
             {student?.student_id} · {student?.programme}
           </p>
         </div>
@@ -39,7 +42,7 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
           whileTap={{ scale: 0.9 }}
           onClick={onLogout}
           title="Log out"
-          className="p-2 rounded-lg text-slate-400 hover:text-rose-300 hover:bg-rose-500/10"
+          className="p-2 rounded-lg text-muted hover:text-bad hover:bg-bad/10 transition-colors"
         >
           <LogOut size={16} />
         </motion.button>
@@ -49,12 +52,12 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
         onClick={onNewSession}
-        className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/25"
+        className="flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-brand border border-brand/30 bg-brand/5 hover:bg-brand/10 hover:border-brand/50 transition-colors"
       >
         <Plus size={16} /> New session
       </motion.button>
       {sessionId && (
-        <p className="-mt-3 text-center text-[11px] text-slate-500 font-mono">session {sessionId}</p>
+        <p className="-mt-3 text-center text-[11px] text-subtle font-mono">session {sessionId}</p>
       )}
 
       <MemoryCard facts={facts} onForget={onForget} />
@@ -63,19 +66,21 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
 
   return (
     <>
-      <aside className="relative z-10 hidden md:block w-80 shrink-0 glass border-y-0 border-l-0">{content}</aside>
+      <aside className="relative z-10 hidden md:block w-80 shrink-0 bg-surface/60 backdrop-blur-xl backdrop-saturate-150 border-r border-line shadow-[var(--shadow)]">
+        {content}
+      </aside>
       <AnimatePresence>
         {open && (
           <>
             <motion.div
-              className="fixed inset-0 z-30 bg-black/60 md:hidden"
+              className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
             />
             <motion.aside
-              className="fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] bg-[#0b1030]/95 backdrop-blur-xl border-r border-white/10 md:hidden"
+              className="fixed inset-y-0 left-0 z-40 w-80 max-w-[85vw] bg-surface/95 backdrop-blur-xl border-r border-line shadow-2xl md:hidden"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}

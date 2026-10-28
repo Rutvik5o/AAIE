@@ -3,7 +3,7 @@ function inline(text) {
     if (part.startsWith("**") && part.endsWith("**")) return <strong key={i}>{part.slice(2, -2)}</strong>;
     if (part.startsWith("`") && part.endsWith("`"))
       return (
-        <code key={i} className="rounded bg-white/10 px-1 py-0.5 font-mono text-[0.85em]">
+        <code key={i} className="rounded bg-brand/10 text-brand px-1 py-0.5 font-mono text-[0.85em]">
           {part.slice(1, -1)}
         </code>
       );
@@ -37,11 +37,11 @@ export default function Markdown({ text = "" }) {
     <div className="space-y-1.5 leading-relaxed">
       {blocks.map((b, i) => {
         if (b.gap) return <div key={i} className="h-1" />;
-        if (b.heading) return <p key={i} className="font-semibold text-white mt-2">{inline(b.heading)}</p>;
+        if (b.heading) return <p key={i} className="font-semibold text-fg mt-2">{inline(b.heading)}</p>;
         if (b.items) {
           const Tag = b.ordered ? "ol" : "ul";
           return (
-            <Tag key={i} className={`${b.ordered ? "list-decimal" : "list-disc"} pl-5 space-y-1 marker:text-indigo-400`}>
+            <Tag key={i} className={`${b.ordered ? "list-decimal" : "list-disc"} pl-5 space-y-1 marker:text-brand`}>
               {b.items.map((it, j) => (
                 <li key={j}>{inline(it)}</li>
               ))}

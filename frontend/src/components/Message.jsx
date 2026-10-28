@@ -7,7 +7,7 @@ import ApprovalCard from "./ApprovalCard";
 
 function Badge({ icon: Icon, children, className = "" }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[11px] text-slate-300 ${className}`}>
+    <span className={`inline-flex items-center gap-1 rounded-md bg-surface-2/70 border border-line px-2 py-0.5 text-[11px] text-muted ${className}`}>
       {Icon && <Icon size={11} />}
       {children}
     </span>
@@ -20,7 +20,7 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="w-2 h-2 rounded-full bg-indigo-300"
+          className="w-2 h-2 rounded-full bg-brand"
           animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
         />
@@ -40,7 +40,7 @@ function StatusLine({ status }) {
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: 8 }}
         transition={{ duration: 0.2 }}
-        className="flex items-center gap-2 mb-2 text-xs text-indigo-200"
+        className="flex items-center gap-2 mb-2 text-xs text-brand"
       >
         <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
           <Icon size={13} />
@@ -66,7 +66,7 @@ export default function Message({ msg, busy, onDecide }) {
       className={`flex gap-3 ${isUser ? "justify-end" : ""}`}
     >
       {!isUser && (
-        <div className="grid place-items-center w-8 h-8 shrink-0 rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500">
+        <div className="grid place-items-center w-8 h-8 shrink-0 rounded-lg bg-brand-gradient glow text-white">
           <Bot size={16} />
         </div>
       )}
@@ -76,8 +76,8 @@ export default function Message({ msg, busy, onDecide }) {
         <div
           className={
             isUser
-              ? "rounded-2xl rounded-tr-sm bg-gradient-to-br from-indigo-500 to-violet-600 px-4 py-2.5 text-sm shadow-lg shadow-indigo-900/40 whitespace-pre-wrap"
-              : `rounded-2xl rounded-tl-sm px-4 py-3 text-sm ${msg.error ? "border border-rose-500/30 bg-rose-500/10 text-rose-200" : "glass text-slate-200"}`
+              ? "rounded-2xl rounded-tr-sm bg-brand-gradient glow px-4 py-2.5 text-sm text-white whitespace-pre-wrap"
+              : `rounded-2xl rounded-tl-sm px-4 py-3 text-sm ${msg.error ? "border border-bad/30 bg-bad/10 text-bad" : "glass text-fg"}`
           }
         >
           {isUser ? (
@@ -107,13 +107,13 @@ export default function Message({ msg, busy, onDecide }) {
                 </Badge>
               )}
               {tools.map((t) => (
-                <Badge key={t} icon={Wrench} className="text-indigo-200 border-indigo-400/30 bg-indigo-500/10">
+                <Badge key={t} icon={Wrench} className="text-brand border-brand/30 bg-brand/10">
                   {t}
                 </Badge>
               ))}
               <button
                 onClick={() => setOpen(!open)}
-                className="ml-1 inline-flex items-center gap-1 text-[11px] text-indigo-300 hover:text-indigo-100"
+                className="ml-1 inline-flex items-center gap-1 text-[11px] font-medium text-brand hover:opacity-80 transition-opacity"
               >
                 {open ? "Hide trace" : "View trace"}
                 <motion.span animate={{ rotate: open ? 180 : 0 }}>

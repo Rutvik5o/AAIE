@@ -5,13 +5,17 @@ export default function MemoryCard({ facts = [], onForget }) {
   return (
     <div className="glass rounded-2xl p-4 flex-1 min-h-40">
       <div className="flex items-center gap-2 mb-3">
-        <Brain size={16} className="text-fuchsia-400" />
-        <h2 className="text-sm font-semibold">Long-term memory</h2>
-        <span className="ml-auto text-xs text-slate-500">{facts.length} facts</span>
+        <span className="grid place-items-center w-7 h-7 rounded-lg bg-brand/10 text-brand">
+          <Brain size={15} />
+        </span>
+        <h2 className="text-sm font-semibold text-fg">Long-term memory</h2>
+        <span className="ml-auto text-[11px] font-medium text-muted rounded-full bg-surface-2/60 border border-line px-2 py-0.5">
+          {facts.length} facts
+        </span>
       </div>
 
       {facts.length === 0 ? (
-        <p className="text-xs text-slate-500">Nothing remembered yet. Facts the agent saves will appear here.</p>
+        <p className="text-xs text-subtle leading-relaxed">Nothing remembered yet. Facts the agent saves will appear here.</p>
       ) : (
         <ul className="space-y-2">
           <AnimatePresence initial={false}>
@@ -22,13 +26,16 @@ export default function MemoryCard({ facts = [], onForget }) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                className="rounded-lg bg-white/5 px-3 py-2 text-xs hover:bg-white/10 transition"
+                className="flex gap-2.5 rounded-xl bg-surface-2/60 border border-line px-3 py-2 text-xs hover:border-line-strong transition-colors"
               >
-                <span className="text-fuchsia-300 font-medium">{f.key}</span>
-                <span className="text-slate-300">: {String(f.value ?? "")}</span>
-                {f.saved_at && (
-                  <p className="text-[10px] text-slate-500 mt-0.5">{new Date(f.saved_at).toLocaleString()}</p>
-                )}
+                <span className="mt-1.5 w-1.5 h-1.5 shrink-0 rounded-full bg-brand" />
+                <div className="min-w-0">
+                  <span className="text-brand font-medium">{f.key}</span>
+                  <span className="text-fg/90">: {String(f.value ?? "")}</span>
+                  {f.saved_at && (
+                    <p className="text-[10px] text-subtle mt-0.5">{new Date(f.saved_at).toLocaleString()}</p>
+                  )}
+                </div>
               </motion.li>
             ))}
           </AnimatePresence>
@@ -36,12 +43,13 @@ export default function MemoryCard({ facts = [], onForget }) {
       )}
 
       {facts.length > 0 && (
-        <button
+        <motion.button
+          whileTap={{ scale: 0.97 }}
           onClick={onForget}
-          className="mt-4 w-full flex items-center justify-center gap-2 rounded-lg border border-rose-500/30 py-2 text-xs font-medium text-rose-300 hover:bg-rose-500/10 transition"
+          className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl border border-line py-2 text-xs font-medium text-muted hover:text-bad hover:border-bad/30 hover:bg-bad/10 transition-colors"
         >
           <Trash2 size={14} /> Forget all
-        </button>
+        </motion.button>
       )}
     </div>
   );

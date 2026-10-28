@@ -8,6 +8,9 @@ import ChatView from "./components/ChatView";
 import EvalView from "./components/EvalView";
 import AuditView from "./components/AuditView";
 import Toast from "./components/Toast";
+import Background from "./components/Background";
+import ThemeToggle from "./components/ThemeToggle";
+import { useTheme } from "./theme";
 
 const TABS = [
   { id: "chat", label: "Chat", icon: MessageSquare },
@@ -42,6 +45,7 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, toggleTheme] = useTheme();
 
   useEffect(() => {
     api.setUnauthorizedHandler(() => {
@@ -139,13 +143,17 @@ export default function App() {
     run(null, (onEvent) => api.streamApprove(messages[index].pending.action_id, approved, onEvent));
   }
 
-  if (!student) return <Login notice={loginNotice} onLogin={handleLogin} />;
+  if (!student)
+    return (
+      <>
+        <Background />
+        <Login notice={loginNotice} onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />
+      </>
+    );
 
   return (
     <div className="relative flex h-screen overflow-hidden font-sans">
-      <div className="blob bg-indigo-600 w-[480px] h-[480px] -top-40 -left-32" />
-      <div className="blob bg-fuchsia-600 w-[380px] h-[380px] top-1/2 -right-24" />
-      <div className="blob bg-sky-600 w-[320px] h-[320px] -bottom-32 left-1/3" />
+      <Background />
 
       <Sidebar
         open={menuOpen}
@@ -162,8 +170,8 @@ export default function App() {
       />
 
       <main className="relative z-10 flex flex-1 flex-col min-w-0">
-        <header className="flex items-center gap-3 px-4 md:px-8 py-4 border-b border-white/5">
-          <button className="md:hidden p-2 rounded-lg glass" onClick={() => setMenuOpen(true)}>
+        <header className="flex items-center gap-3 px-4 md:px-8 py-4 border-b border-line">
+          <button className="md:hidden p-2 rounded-lg glass text-muted hover:text-fg" onClick={() => setMenuOpen(true)}>
             <Menu size={18} />
           </button>
           <nav className="glass rounded-xl p-1 flex gap-1">
@@ -171,12 +179,14 @@ export default function App() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className="relative px-3 sm:px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-2"
+                className={`relative px-3 sm:px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors ${
+                  tab === id ? "text-white" : "text-muted hover:text-fg"
+                }`}
               >
                 {tab === id && (
                   <motion.span
                     layoutId="tab-pill"
-                    className="absolute inset-0 rounded-lg bg-gradient-to-r from-indigo-500/80 to-violet-500/80"
+                    className="absolute inset-0 rounded-lg bg-brand-gradient glow"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -185,6 +195,7 @@ export default function App() {
               </button>
             ))}
           </nav>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} className="ml-auto" />
         </header>
 
         <AnimatePresence mode="wait">

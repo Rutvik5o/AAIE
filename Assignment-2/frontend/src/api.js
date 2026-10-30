@@ -103,3 +103,4 @@ export const getMemory = () => request("/memory");
 export const clearMemory = () => request("/memory", { method: "DELETE" });
 export const getEval = () => request("/eval");
 export const getAudit = () => request("/audit");
+export const getPolicy = () => request("/policy", { auth: false });

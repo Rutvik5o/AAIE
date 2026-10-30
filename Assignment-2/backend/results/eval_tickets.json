@@ -1,0 +1,15 @@
+{
+  "tickets": [
+    {
+      "ticket_id": "TKT-0001",
+      "student_id": "S1002",
+      "category": "it",
+      "subject": "Library Wi-Fi connectivity issue",
+      "description": "Campus Wi-Fi in the library keeps disconnecting since yesterday.",
+      "priority": "normal",
+      "status": "open",
+      "created_at": "2026-10-30T15:42:43",
+      "expected_response": "1 working day"
+    }
+  ]
+}

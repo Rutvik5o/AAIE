@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Target, Timer, ArrowDownToLine, ArrowUpFromLine, Wrench, Loader2, Terminal, RefreshCw } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Target, Timer, ArrowDownToLine, ArrowUpFromLine, Wrench, Loader2, Terminal, RefreshCw, ChevronDown, GitCompare, ShieldCheck,
+} from "lucide-react";
 import * as api from "../api";
 import Logo from "./Logo";
+import { Pill as StatusPill, RuleChip, PermissionRow, ApprovalRow } from "./Pills";
 
 function StatCard({ icon: Icon, label, value, accent, delay, bar }) {
   return (
@@ -104,12 +107,151 @@ function Chips({ items, tone = "brand" }) {
   );
 }
 
+const GROUP_FILTERS = [
+  ["all", "All"],
+  ["task", "Task"],
+  ["privacy", "Privacy"],
+  ["unsafe_action", "Unsafe action"],
+  ["memory_safety", "Memory"],
+];
+const GROUP_LABELS = Object.fromEntries(GROUP_FILTERS);
+
+function GroupTile({ group, delay }) {
+  const pct = group.total ? (group.passed / group.total) * 100 : 0;
+  const allPass = group.total > 0 && group.passed === group.total;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      className="glass rounded-2xl p-4"
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-subtle">{group.label}</p>
+      <p className={`mt-2 text-xl font-bold tabular-nums ${allPass ? "text-ok" : "text-warn"}`}>
+        {group.passed ?? 0} / {group.total ?? 0}
+      </p>
+      <div className="mt-3 h-1.5 rounded-full bg-surface-2 overflow-hidden">
+        <motion.div
+          className={`h-full rounded-full ${allPass ? "bg-ok" : "bg-warn"}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.9, delay: delay + 0.15, ease: "easeOut" }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function ComparisonTable({ rows }) {
+  return (
+    <div className="glass rounded-2xl overflow-hidden">
+      <h3 className="flex items-center gap-2 px-5 pt-4 pb-3 text-sm font-semibold text-fg">
+        <GitCompare size={15} className="text-brand" /> Assignment 1 vs Assignment 2
+      </h3>
+      <div className="overflow-x-auto scroll-thin">
+        <table className="w-full text-xs">
+          <thead className="text-left bg-surface-2/60 text-subtle uppercase text-[11px] tracking-wide">
+            <tr>
+              {["Metric", "Assignment 1", "Assignment 2", "Note"].map((h) => (
+                <th key={h} className="px-4 py-2.5 font-semibold whitespace-nowrap">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i} className="border-t border-line align-top">
+                <td className="px-4 py-2.5 font-medium text-fg min-w-44">{r.metric}</td>
+                <td className="px-4 py-2.5 font-mono text-muted whitespace-nowrap">{r.a1 ?? "—"}</td>
+                <td className="px-4 py-2.5 font-mono text-brand whitespace-nowrap">{r.a2 ?? "—"}</td>
+                <td className="px-4 py-2.5 text-muted min-w-56">{r.note || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AuditLine({ e }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
+      <span className="font-mono text-subtle">#{e.seq}</span>
+      <span className="font-mono text-fg">{e.actor}</span>
+      <span className="font-mono text-muted">{e.action}</span>
+      {e.target && (
+        <span className={`font-mono ${e.target !== e.actor ? "text-bad font-semibold" : "text-muted"}`}>→ {e.target}</span>
+      )}
+      <StatusPill value={e.permission} />
+      <RuleChip rule={e.rule} />
+      <StatusPill value={e.approval} />
+      <StatusPill value={e.result} />
+    </div>
+  );
+}
+
+function ScenarioEvidence({ scenarios }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="glass rounded-2xl p-5">
+      <button onClick={() => setOpen(!open)} className="w-full flex items-center gap-2 text-left">
+        <ShieldCheck size={15} className="text-brand" />
+        <h3 className="text-sm font-semibold text-fg">Scenario evidence</h3>
+        <span className="text-xs text-muted">{scenarios.length} scenarios</span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} className="ml-auto text-muted">
+          <ChevronDown size={16} />
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 space-y-4">
+              {scenarios.map((sc, i) => (
+                <div key={i} className="rounded-xl border border-line bg-surface-2/40 p-3 space-y-2.5">
+                  <p className="text-sm font-semibold text-fg">
+                    {sc.scenario}
+                    {sc.case_id && <span className="ml-2 font-mono text-xs text-subtle">{sc.case_id}</span>}
+                  </p>
+                  {sc.permissions?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-wide text-subtle">Permission checks</p>
+                      {sc.permissions.map((p, j) => <PermissionRow key={j} p={p} />)}
+                    </div>
+                  )}
+                  {sc.approvals?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-wide text-subtle">Approvals</p>
+                      {sc.approvals.map((a, j) => <ApprovalRow key={j} a={a} />)}
+                    </div>
+                  )}
+                  {sc.audit?.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-wide text-subtle">Audit entries</p>
+                      {sc.audit.map((e, j) => <AuditLine key={j} e={e} />)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 const list = (arr) => (arr?.length ? arr.join(", ") : "—");
 const secs = (ms) => (ms == null ? "—" : `${(ms / 1000).toFixed(1)}s`);
 
 export default function EvalView({ onError }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [group, setGroup] = useState("all");
 
   function load() {
     setLoading(true);
@@ -154,15 +296,22 @@ export default function EvalView({ onError }) {
     );
 
   const s = summary || {};
+  const groups = Object.values(s.groups || {});
+  const comparison = data?.comparison || [];
+  const scenarios = data?.scenarios || [];
+  const shown = group === "all" ? rows : rows.filter((r) => r.group === group);
   return (
     <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center">
+        <div className="flex flex-wrap items-center gap-y-2">
           <div className="flex items-center gap-3">
             <Logo size={36} />
             <div>
               <h2 className="text-xl font-bold text-gradient leading-tight">Evaluation results</h2>
-              <p className="text-xs text-muted">13 test cases · accuracy, tools, latency and tokens</p>
+              <p className="text-xs text-muted">
+                {s.total ?? rows.length} test cases · tasks, privacy, unsafe actions and memory safety
+                {s.model && <span className="font-mono text-subtle"> · {s.model}</span>}
+              </p>
             </div>
           </div>
           <span className="ml-3 text-sm text-muted">
@@ -185,6 +334,16 @@ export default function EvalView({ onError }) {
           <StatCard delay={0.2} icon={ArrowUpFromLine} label="Avg output tokens" value={Math.round(s.avg_output_tokens ?? 0).toLocaleString()} accent="bg-brand/10 text-brand" />
         </div>
 
+        {groups.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {groups.map((g, i) => (
+              <GroupTile key={g.label ?? i} group={g} delay={0.1 + i * 0.05} />
+            ))}
+          </div>
+        )}
+
+        {comparison.length > 0 && <ComparisonTable rows={comparison} />}
+
         <div className="grid lg:grid-cols-2 gap-4">
           <BarChart
             title="Latency per test"
@@ -201,17 +360,36 @@ export default function EvalView({ onError }) {
           />
         </div>
 
+        <div className="flex flex-wrap gap-2">
+          {GROUP_FILTERS.map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setGroup(key)}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                group === key ? "bg-brand/10 text-brand border-brand/40" : "border-line text-muted hover:text-fg hover:border-line-strong"
+              }`}
+            >
+              {label}
+              <span className="ml-1.5 text-subtle">{key === "all" ? rows.length : rows.filter((r) => r.group === key).length}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="glass rounded-2xl overflow-x-auto scroll-thin">
           <table className="w-full text-xs">
             <thead className="text-left bg-surface-2/60 text-subtle uppercase text-[11px] tracking-wide">
               <tr>
-                {["ID", "Question", "Expected tools", "Tools used", "Result", "Latency", "Tokens", "Evidence", "Notes"].map((h) => (
+                {["ID", "Group", "Question", "Expected tools", "Tools used", "Result", "Latency", "Tokens", "Evidence", "Notes"].map((h) => (
                   <th key={h} className="px-3 py-3 font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {shown.map((r, i) => {
+                const failedChecks = Object.entries(r.checks || {})
+                  .filter(([, ok]) => ok === false)
+                  .map(([name]) => name);
+                return (
                 <motion.tr
                   key={r.id ?? i}
                   initial={{ opacity: 0 }}
@@ -219,20 +397,36 @@ export default function EvalView({ onError }) {
                   transition={{ delay: 0.2 + i * 0.03 }}
                   className="border-t border-line hover:bg-brand/5 transition-colors align-top"
                 >
-                  <td className="px-3 py-3 font-mono text-muted">{r.id}</td>
+                  <td className="px-3 py-3 font-mono text-muted">
+                    {r.id}
+                    {r.student_id && <p className="text-[10px] text-subtle">{r.student_id}</p>}
+                  </td>
+                  <td className="px-3 py-3">
+                    {r.group ? <StatusPill tone="brand">{GROUP_LABELS[r.group] || r.group}</StatusPill> : <span className="text-subtle">—</span>}
+                  </td>
                   <td className="px-3 py-3 min-w-56 text-fg">{r.question}</td>
                   <td className="px-3 py-3"><Chips items={r.expected_tools} tone="muted" /></td>
                   <td className="px-3 py-3"><Chips items={r.tools_used} tone={r.tool_ok === false ? "bad" : "brand"} /></td>
-                  <td className="px-3 py-3"><Pill ok={r.passed} /></td>
+                  <td className="px-3 py-3">
+                    <Pill ok={r.passed} />
+                    {!r.passed && failedChecks.length > 0 && (
+                      <div className="mt-1.5">
+                        <Chips items={failedChecks} tone="bad" />
+                      </div>
+                    )}
+                  </td>
                   <td className="px-3 py-3 font-mono text-fg">{secs(r.latency_ms)}</td>
                   <td className="px-3 py-3 font-mono text-fg whitespace-nowrap">{r.input_tokens ?? "—"} / {r.output_tokens ?? "—"}</td>
                   <td className="px-3 py-3 font-mono text-brand-2">{list(r.evidence)}</td>
                   <td className="px-3 py-3 min-w-48 text-muted">{r.notes || "—"}</td>
                 </motion.tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {scenarios.length > 0 && <ScenarioEvidence scenarios={scenarios} />}
       </div>
     </div>
   );

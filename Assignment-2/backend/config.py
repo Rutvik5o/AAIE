@@ -29,5 +29,5 @@ TOKEN_TTL_MINUTES = 60
 MAX_LOGIN_ATTEMPTS = 5
 LOCKOUT_MINUTES = 5
 
-# Tools that change data must be approved by the student before they run
-TOOLS_NEEDING_APPROVAL = {"create_support_ticket"}
+APPROVAL_TTL_MINUTES = 10  # a pending approval expires after this
+# Which tools need approval, and who may call what, is defined in security/policy.py

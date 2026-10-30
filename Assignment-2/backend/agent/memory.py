@@ -7,7 +7,7 @@ from datetime import datetime
 SENSITIVE = [
     (r"\b\d(?:[ -]?\d){12,18}\b", "sensitive: payment card number"),
     (r"\b\d{4}\s?\d{4}\s?\d{4}\b", "sensitive: ID number"),
-    (r"\b(password|passcode|pin|otp|cvv)\b", "sensitive: credentials"),
+    (r"\b(password|passcode|passwd|pwd|pin|otp|cvv|one[- ]time code|verification code)\b", "sensitive: credentials"),
     (r"\b(bank account|ifsc|account number)\b", "sensitive: bank details"),
     (r"\b(diagnos\w*|medication|illness|disease|therapy|depress\w*)\b", "sensitive: health information"),
 ]
@@ -17,7 +17,8 @@ TEMPORARY = [
 ]
 
 CARD = re.compile(SENSITIVE[0][0])
-OTP = re.compile(r"\b(otp|pin|password|cvv)(\s*(?:is|:)\s*)(\S+)", re.IGNORECASE)
+# "OTP is 4829", "password: Blue@26", "otp 482913" (bare value only if it contains a digit)
+OTP = re.compile(r"\b(otp|pin|password|passcode|passwd|pwd|cvv)\b(\s*(?:is|:|=)\s*|\s+(?=\S*\d))(\S+)", re.IGNORECASE)
 
 
 def check(text: str) -> str | None:

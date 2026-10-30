@@ -12,6 +12,7 @@ class LLM:
             raise RuntimeError("GROQ_API_KEY is missing. Add it to backend/.env")
         self.client = Groq(api_key=config.GROQ_API_KEY)
         self.model = model
+        self.rate_limit_wait_s = 0.0  # total time spent waiting on rate limits (reported in traces)
 
     def _create(self, **kwargs):
         for attempt in range(4):
@@ -20,7 +21,9 @@ class LLM:
                     model=self.model, tool_choice="auto", temperature=0.1, **kwargs
                 )
             except RateLimitError as e:
-                time.sleep(float(e.response.headers.get("retry-after", 5 * (attempt + 1))))
+                wait = float(e.response.headers.get("retry-after", 5 * (attempt + 1)))
+                self.rate_limit_wait_s += wait
+                time.sleep(wait)
             except BadRequestError:  # model produced a malformed tool call; ask again
                 if attempt == 3:
                     raise

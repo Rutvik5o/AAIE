@@ -13,6 +13,7 @@ import config
 from agent.loop import Agent
 from security.audit import AuditLog
 from security.auth import AuthError, AuthManager
+from security.policy import EDITABLE_FIELDS, RULES
 
 students = json.loads(config.STUDENTS_FILE.read_text(encoding="utf-8"))["students"]
 audit = AuditLog(config.AUDIT_FILE)
@@ -66,16 +67,16 @@ def login(req: LoginRequest):
     try:
         session = auth.login(student_id, req.pin.strip())
     except AuthError as e:
-        audit.log(student_id or "unknown", "login_failed", {"reason": str(e)})
+        audit.record(student_id or "unknown", "login", permission="denied", rule="P1", result="failed", details={"reason": str(e)})
         raise HTTPException(status_code=401, detail=str(e))
-    audit.log(student_id, "login_success")
+    audit.record(student_id, "login", rule="P1")
     return {**session, "student": _profile(student_id)}
 
 
 @app.post("/api/logout")
 def logout(token: str = Depends(_token), student_id: str = Depends(current_student)):
     auth.logout(token)
-    audit.log(student_id, "logout")
+    audit.record(student_id, "logout")
     return {"ok": True}
 
 
@@ -91,7 +92,7 @@ def chat(req: ChatRequest, student_id: str = Depends(current_student)):
     try:
         return agent.chat(student_id, req.session_id or "", req.message)
     except Exception as e:
-        audit.log(student_id, "agent_error", {"error": str(e)})
+        audit.record(student_id, "chat", result="failed", details={"error": str(e)})
         raise HTTPException(status_code=502, detail=f"The assistant is unavailable right now: {e}")
 
 
@@ -112,7 +113,7 @@ def stream_events(student_id: str, run) -> StreamingResponse:
         try:
             events.put(("done", run(lambda event, data: events.put((event, data)))))
         except Exception as e:
-            audit.log(student_id, "agent_error", {"error": str(e)})
+            audit.record(student_id, "chat", result="failed", details={"error": str(e)})
             events.put(("error", {"detail": f"The assistant is unavailable right now: {e}"}))
         events.put(None)
 
@@ -147,7 +148,7 @@ def get_memory(student_id: str = Depends(current_student)):
 @app.delete("/api/memory")
 def clear_memory(student_id: str = Depends(current_student)):
     agent.memory.clear(student_id)
-    audit.log(student_id, "memory_cleared")
+    audit.record(student_id, "clear_memory")
     return {"ok": True}
 
 
@@ -155,6 +156,12 @@ def clear_memory(student_id: str = Depends(current_student)):
 def get_audit(student_id: str = Depends(current_student)):
     events = [e for e in audit.read() if e["actor"] == student_id]
     return {"events": events[::-1], "chain_valid": audit.verify()}
+
+
+@app.get("/api/policy")
+def get_policy():
+    """The permission rules, shown in the UI so they can be explained during the demo."""
+    return {"rules": RULES, "editable_fields": sorted(EDITABLE_FIELDS)}
 
 
 @app.get("/api/eval")

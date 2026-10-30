@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus, LogOut, X } from "lucide-react";
 import { Brand } from "./Logo";
 import MemoryCard from "./MemoryCard";
+import PolicyCard from "./PolicyCard";
 
 export default function Sidebar({ open, onClose, student, onLogout, sessionId, onNewSession, facts, onForget }) {
   const initials = (student?.name || "?")
@@ -56,6 +57,7 @@ export default function Sidebar({ open, onClose, student, onLogout, sessionId, o
       )}
 
       <MemoryCard facts={facts} onForget={onForget} />
+      <PolicyCard />
     </div>
   );
 

@@ -1,5 +1,9 @@
 """Append-only audit log. Each entry stores the hash of the previous entry,
-so editing or deleting any past line breaks the chain and is detected."""
+so editing or deleting any past line breaks the chain and is detected.
+
+Every entry answers the same questions:
+  who (actor) · what (action, target) · was it allowed (permission, rule)
+  · was it approved (approval) · what happened (result)"""
 import hashlib
 import json
 from datetime import datetime
@@ -24,13 +28,22 @@ class AuditLog:
         lines = self.path.read_text(encoding="utf-8").splitlines()
         return [json.loads(line) for line in lines if line.strip()]
 
-    def log(self, actor: str, event: str, details: dict | None = None) -> dict:
+    def record(self, actor: str, action: str, *, target: str | None = None, permission: str = "allowed",
+               rule: str | None = None, approval: str = "not_required", result: str = "success",
+               details: dict | None = None) -> dict:
+        """permission: allowed | denied   approval: not_required | pending | approved | rejected | expired
+        result: success | failed | blocked | waiting | not_executed"""
         events = self.read()
         entry = {
             "seq": len(events) + 1,
             "ts": datetime.now().isoformat(timespec="seconds"),
             "actor": actor,
-            "event": event,
+            "action": action,
+            "target": target or actor,
+            "permission": permission,
+            "rule": rule,
+            "approval": approval,
+            "result": result,
             "details": redact_all(details or {}),
             "prev_hash": events[-1]["hash"] if events else GENESIS,
         }

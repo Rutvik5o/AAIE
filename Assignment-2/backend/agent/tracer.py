@@ -17,9 +17,12 @@ class Trace:
         self.memory_saved = []
         self.memory_blocked = []
         self.approvals = []
+        self.permissions = []        # one policy decision per tool call
+        self.sensitive_turn = None   # set when the message contains sensitive info
         self.tokens = {"input": 0, "output": 0}
         self.llm_calls = 0
         self.first_token_ms = None
+        self.rate_limit_wait_ms = 0  # time spent waiting on the provider's rate limit
 
     def mark_first_token(self) -> None:
         if self.first_token_ms is None:
@@ -41,8 +44,10 @@ class Trace:
             "memory_saved": self.memory_saved,
             "memory_blocked": self.memory_blocked,
             "approvals": self.approvals,
+            "permissions": self.permissions,
             "latency_ms": round((time.perf_counter() - self.start) * 1000),
             "first_token_ms": self.first_token_ms,
+            "rate_limit_wait_ms": self.rate_limit_wait_ms,
             "tokens": self.tokens,
             "llm_calls": self.llm_calls,
         }

@@ -1,4 +1,5 @@
-import { CheckCircle2, XCircle, FileText, Brain, ShieldOff, Save, Cpu, UserCheck } from "lucide-react";
+import { CheckCircle2, XCircle, FileText, Brain, ShieldOff, Save, Cpu, UserCheck, ShieldCheck } from "lucide-react";
+import { PermissionRow, ApprovalRow } from "./Pills";
 
 export function JsonBlock({ data, className = "" }) {
   return (
@@ -19,11 +20,8 @@ function Section({ icon: Icon, title, color = "text-subtle", children }) {
   );
 }
 
-const DECISION_COLORS = {
-  approved: "bg-ok/10 border border-ok/30 text-ok",
-  rejected: "bg-bad/10 border border-bad/30 text-bad",
-  pending: "bg-warn/10 border border-warn/30 text-warn",
-};
+// True when a tool result is a "Permission denied (P2): ..." error.
+const isDenied = (result) => JSON.stringify(result ?? "").includes("Permission denied");
 
 export default function TracePanel({ trace = {} }) {
   const steps = trace.steps || [];
@@ -32,6 +30,7 @@ export default function TracePanel({ trace = {} }) {
   const saved = trace.memory_saved || [];
   const blocked = trace.memory_blocked || [];
   const approvals = trace.approvals || [];
+  const permissions = trace.permissions || [];
 
   return (
     <div className="mt-3 glass rounded-xl p-4 space-y-5 text-xs text-fg">
@@ -41,7 +40,8 @@ export default function TracePanel({ trace = {} }) {
         ) : (
           <ol className="relative border-l border-line-strong ml-1.5 space-y-4">
             {steps.map((s, i) => {
-              const ok = s.ok !== false;
+              const denied = isDenied(s.result);
+              const ok = s.ok !== false && !denied;
               return (
                 <li key={i} className="pl-4 relative">
                   <span className={`absolute -left-[7px] top-0.5 rounded-full bg-surface ${ok ? "text-ok" : "text-bad"}`}>
@@ -49,7 +49,7 @@ export default function TracePanel({ trace = {} }) {
                   </span>
                   <p className="font-mono font-medium text-fg">
                     {i + 1}. {s.tool || "unknown"}
-                    <span className={`ml-2 text-[10px] ${ok ? "text-ok" : "text-bad"}`}>{ok ? "ok" : "error"}</span>
+                    <span className={`ml-2 text-[10px] ${ok ? "text-ok" : "text-bad"}`}>{ok ? "ok" : denied ? "permission denied" : "error"}</span>
                   </p>
                   <div className="grid md:grid-cols-2 gap-2 mt-1.5">
                     <div>
@@ -58,7 +58,7 @@ export default function TracePanel({ trace = {} }) {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide text-subtle mb-1">result</p>
-                      <JsonBlock data={s.result ?? null} className={ok ? "" : "border-bad/30 text-bad"} />
+                      <JsonBlock data={s.result ?? null} className={ok ? "" : "border-bad/30 bg-bad/5 text-bad"} />
                     </div>
                   </div>
                 </li>
@@ -68,13 +68,21 @@ export default function TracePanel({ trace = {} }) {
         )}
       </Section>
 
+      {permissions.length > 0 && (
+        <Section icon={ShieldCheck} title="Permission checks">
+          <div className="space-y-1.5">
+            {permissions.map((p, i) => (
+              <PermissionRow key={i} p={p} />
+            ))}
+          </div>
+        </Section>
+      )}
+
       {approvals.length > 0 && (
         <Section icon={UserCheck} title="Approvals">
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-1.5">
             {approvals.map((a, i) => (
-              <span key={i} className={`rounded-md px-2 py-1 font-mono ${DECISION_COLORS[a.decision] || "bg-surface-2/70 border border-line text-muted"}`}>
-                {a.tool} · {a.decision} {a.action_id && <span className="opacity-60">#{a.action_id}</span>}
-              </span>
+              <ApprovalRow key={i} a={a} />
             ))}
           </div>
         </Section>

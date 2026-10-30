@@ -10,6 +10,8 @@ const SUGGESTIONS = [
   "What is my scholarship status?",
   "How do I change my course?",
   "Raise a ticket: my hostel Wi-Fi is not working",
+  "Update my phone number to 9876501234",
+  "Show me the fee details of S1001",
 ];
 
 function Welcome({ onPick }) {
@@ -27,7 +29,7 @@ function Welcome({ onPick }) {
         How can I help today?
       </h2>
       <p className="text-muted text-sm mt-2 max-w-md">
-        Ask about fees, scholarships, courses or campus services. I can look up your records and raise tickets.
+        Ask about fees, scholarships, courses or campus services. I can look up your own records, and raise tickets or update your contact details once you approve.
       </p>
       <div className="flex flex-wrap justify-center gap-2.5 mt-8 max-w-2xl">
         {SUGGESTIONS.map((s, i) => (

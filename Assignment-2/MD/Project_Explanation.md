@@ -6,7 +6,7 @@
 - **Backend:** Python and FastAPI.
 - **Frontend:** React, Vite, Tailwind and Framer Motion, with light and dark themes.
 
-The diagrams are in the [`architecture/`](../architecture) folder. Each diagram comes as a PNG for reports and slides, and as an SVG for zooming.
+The diagrams are in the [`architecture/`](../architecture) folder. Each diagram is a PNG, ready for reports and slides.
 
 | # | Diagram | Shows |
 |---|---|---|

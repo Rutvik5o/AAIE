@@ -11,7 +11,7 @@
 | Folder | What it is |
 |---|---|
 | [**Assignment-1**](Assignment-1/) | The original agent: agent loop, 5 tools, persistent memory, top-k retrieval, context selection, authentication, approval, audit, tracing and evaluation |
-| [**Assignment-2**](Assignment-2/) | Builds on Assignment 1 with further improvements |
+| [**Assignment-2**](Assignment-2/) | The same agent made safe for institutional use: permission rules enforced in code (own data only, protected fields), approval before sensitive changes (with reject and expiry), secrets kept out of memory and logs, a who/what/permission/approval/result audit trail, and a final evaluation compared with Assignment 1 |
 
 Each folder has its own `README.md` with setup steps, architecture and evaluation results.
 

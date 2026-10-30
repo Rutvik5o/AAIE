@@ -3,90 +3,103 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck, ShieldX, RefreshCw, ChevronRight, Loader2 } from "lucide-react";
 import * as api from "../api";
 import { JsonBlock } from "./TracePanel";
+import { Pill, RuleChip } from "./Pills";
 import Logo from "./Logo";
 
-const TONES = {
-  brand: { pill: "bg-brand/10 text-brand border-brand/30", dot: "bg-brand ring-brand/20" },
-  brand2: { pill: "bg-brand-2/10 text-brand-2 border-brand-2/30", dot: "bg-brand-2 ring-brand-2/20" },
-  bad: { pill: "bg-bad/10 text-bad border-bad/30", dot: "bg-bad ring-bad/20" },
-  accent: { pill: "bg-accent/10 text-accent border-accent/30", dot: "bg-accent ring-accent/20" },
-  warn: { pill: "bg-warn/10 text-warn border-warn/30", dot: "bg-warn ring-warn/20" },
-  ok: { pill: "bg-ok/10 text-ok border-ok/30", dot: "bg-ok ring-ok/20" },
-  neutral: { pill: "bg-surface-2 text-muted border-line", dot: "bg-subtle ring-line" },
+const WRITE_ACTIONS = ["update_contact_details", "create_support_ticket", "save_memory", "clear_memory"];
+
+const FILTERS = {
+  all: { label: "All", test: () => true },
+  denied: { label: "Denied", test: (e) => e.permission === "denied" },
+  approvals: { label: "Approvals", test: (e) => e.approval && e.approval !== "not_required" },
+  writes: { label: "Writes", test: (e) => WRITE_ACTIONS.includes(e.action) },
 };
 
-const EVENT_TONES = {
-  login_success: "brand2",
-  login: "brand2",
-  login_failed: "bad",
-  access_denied: "bad",
-  tool_error: "bad",
-  tool_call: "brand",
-  approval_requested: "warn",
-  approval_granted: "accent",
-  approval_rejected: "warn",
-  memory_saved: "ok",
-  memory_blocked: "warn",
-};
+// Desktop grid: Time · Who · Action · Target · Permission · Approval · Result
+const GRID = "md:grid md:grid-cols-[9rem_5rem_minmax(0,1fr)_5rem_8rem_7rem_7rem_1rem] md:items-center md:gap-3";
 
-function toneFor(event = "") {
-  if (EVENT_TONES[event]) return TONES[EVENT_TONES[event]];
-  if (event.includes("error") || event.includes("denied") || event.includes("failed")) return TONES.bad;
-  if (event.startsWith("login")) return TONES.brand2;
-  if (event.startsWith("approval")) return TONES.accent;
-  if (event.startsWith("tool")) return TONES.brand;
-  return TONES.neutral;
+const time = (ts) => (ts ? new Date(ts).toLocaleString() : "—");
+const short = (h) => (h ? `${h.slice(0, 12)}…` : "—");
+
+function Cell({ label, children }) {
+  // On mobile each cell shows its own label; on desktop the header row does that.
+  return (
+    <div className="flex items-center gap-2 md:block min-w-0">
+      <span className="md:hidden w-20 shrink-0 text-[10px] uppercase tracking-wide text-subtle">{label}</span>
+      {children}
+    </div>
+  );
 }
 
 function EventRow({ ev, index }) {
   const [open, setOpen] = useState(false);
-  const hasDetails = ev.details && Object.keys(ev.details).length > 0;
-  const tone = toneFor(ev.event);
+  const denied = ev.permission === "denied";
 
   return (
     <motion.li
-      initial={{ opacity: 0, x: -16 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: Math.min(index * 0.03, 0.6) }}
-      className="relative pl-7"
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(index * 0.02, 0.4) }}
+      className={`border-t border-line first:border-t-0 ${denied ? "bg-bad/5" : ""}`}
     >
-      <span className={`absolute left-[5px] top-4 w-2.5 h-2.5 rounded-full ring-4 ${tone.dot}`} />
-      <div className="glass rounded-xl px-4 py-3 transition-colors hover:border-line-strong hover:bg-brand/5">
-        <button
-          onClick={() => hasDetails && setOpen(!open)}
-          className="w-full flex flex-wrap items-center gap-x-3 gap-y-1 text-left text-xs"
-        >
-          <span className="font-mono text-subtle">#{ev.seq}</span>
-          <span className={`rounded-full border px-2.5 py-0.5 font-semibold ${tone.pill}`}>
-            {ev.event}
+      <button
+        onClick={() => setOpen(!open)}
+        className={`w-full text-left text-xs px-4 py-3 space-y-1.5 md:space-y-0 hover:bg-brand/5 transition-colors ${GRID}`}
+      >
+        <Cell label="Time">
+          <span className="text-muted">
+            <span className="font-mono text-subtle mr-1.5">#{ev.seq}</span>
+            {time(ev.ts)}
           </span>
-          <span className="text-fg font-medium">{ev.actor}</span>
-          <span className="text-subtle">{ev.ts ? new Date(ev.ts).toLocaleString() : ""}</span>
-          <span className="ml-auto font-mono text-muted" title={ev.hash}>
-            {ev.hash ? `${ev.hash.slice(0, 10)}…` : ""}
+        </Cell>
+        <Cell label="Who">
+          <span className="font-mono font-medium text-fg">{ev.actor || "—"}</span>
+        </Cell>
+        <Cell label="Action">
+          <span className="font-mono text-fg truncate">{ev.action || "—"}</span>
+        </Cell>
+        <Cell label="Target">
+          <span
+            className={`font-mono ${ev.target && ev.target !== ev.actor ? "text-bad font-semibold" : "text-muted"}`}
+            title={ev.target && ev.target !== ev.actor ? "Different student from the actor" : undefined}
+          >
+            {ev.target || "—"}
           </span>
-          {hasDetails && (
-            <motion.span animate={{ rotate: open ? 90 : 0 }} className="text-muted">
-              <ChevronRight size={14} />
-            </motion.span>
-          )}
-        </button>
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <JsonBlock data={ev.details} className="mt-3" />
-              {ev.prev_hash && (
-                <p className="mt-2 text-[10px] font-mono text-muted break-all">prev: {ev.prev_hash}</p>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        </Cell>
+        <Cell label="Permission">
+          <span className="inline-flex items-center gap-1">
+            <Pill value={ev.permission} />
+            <RuleChip rule={ev.rule} />
+          </span>
+        </Cell>
+        <Cell label="Approval">
+          <Pill value={ev.approval} />
+        </Cell>
+        <Cell label="Result">
+          <Pill value={ev.result} />
+        </Cell>
+        <motion.span animate={{ rotate: open ? 90 : 0 }} className="hidden md:block text-muted">
+          <ChevronRight size={14} />
+        </motion.span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4">
+              <JsonBlock data={ev.details ?? {}} />
+              <p className="mt-2 text-[10px] font-mono text-muted break-all">
+                hash: <span title={ev.hash}>{short(ev.hash)}</span> · prev: <span title={ev.prev_hash}>{short(ev.prev_hash)}</span>
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.li>
   );
 }
@@ -94,6 +107,7 @@ function EventRow({ ev, index }) {
 export default function AuditView({ onError }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
 
   function load() {
     setLoading(true);
@@ -106,18 +120,19 @@ export default function AuditView({ onError }) {
 
   useEffect(load, []);
 
-  const events = [...(data?.events || [])].reverse();
+  const all = [...(data?.events || [])].reverse();
+  const events = all.filter(FILTERS[filter].test);
   const valid = data?.chain_valid;
 
   return (
     <div className="flex-1 overflow-y-auto scroll-thin px-4 md:px-8 py-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-wrap items-center gap-3 mb-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-wrap items-center gap-3 mb-5">
           <div className="flex items-center gap-3">
             <Logo size={36} />
             <div>
               <h2 className="text-xl font-bold text-gradient leading-tight">Audit log</h2>
-              <p className="text-xs text-muted">Every login, tool call, approval and memory event</p>
+              <p className="text-xs text-muted">Who did what, whether it was allowed, approved and what happened</p>
             </div>
           </div>
           {data && (
@@ -141,18 +156,42 @@ export default function AuditView({ onError }) {
           </button>
         </div>
 
+        <div className="flex flex-wrap gap-2 mb-4">
+          {Object.entries(FILTERS).map(([key, f]) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                filter === key
+                  ? "bg-brand/10 text-brand border-brand/40"
+                  : "border-line text-muted hover:text-fg hover:border-line-strong"
+              }`}
+            >
+              {f.label}
+              <span className="ml-1.5 text-subtle">{all.filter(f.test).length}</span>
+            </button>
+          ))}
+        </div>
+
         {loading && !data ? (
           <div className="grid place-items-center py-20 text-muted">
             <Loader2 className="animate-spin" />
           </div>
         ) : events.length === 0 ? (
-          <p className="text-sm text-subtle">No audit events yet.</p>
+          <p className="text-sm text-subtle">No audit events{filter === "all" ? " yet" : " match this filter"}.</p>
         ) : (
-          <ol className="relative space-y-3 before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-px before:bg-line">
-            {events.map((ev, i) => (
-              <EventRow key={ev.seq ?? i} ev={ev} index={i} />
-            ))}
-          </ol>
+          <div className="glass rounded-2xl overflow-hidden">
+            <div className={`hidden px-4 py-3 bg-surface-2/60 text-subtle uppercase text-[11px] font-semibold tracking-wide ${GRID}`}>
+              {["Time", "Who", "Action", "Target", "Permission", "Approval", "Result", ""].map((h, i) => (
+                <span key={i}>{h}</span>
+              ))}
+            </div>
+            <ol>
+              {events.map((ev, i) => (
+                <EventRow key={ev.seq ?? i} ev={ev} index={i} />
+              ))}
+            </ol>
+          </div>
         )}
       </div>
     </div>

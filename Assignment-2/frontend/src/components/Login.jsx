@@ -64,7 +64,7 @@ export default function Login({ notice, onLogin, theme, onToggleTheme }) {
               Campus <span className="text-gradient">Assist</span>
             </h1>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">AI Student Support Agent</p>
-            <p className="text-sm text-muted mt-3">Sign in to get help with fees, scholarships and courses</p>
+            <p className="text-sm text-muted mt-3">Sign in to get help with fees, scholarships and courses. Your records stay private and changes need your approval.</p>
           </div>
 
           <label className="block text-xs font-medium text-muted mb-1.5">Student ID</label>

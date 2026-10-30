@@ -120,6 +120,39 @@
       "status": "open",
       "created_at": "2026-10-28T13:25:38",
       "expected_response": "3 working days"
+    },
+    {
+      "ticket_id": "TKT-0012",
+      "student_id": "S1002",
+      "category": "it",
+      "subject": "Library Wi\u2011Fi disconnecting",
+      "description": "The campus Wi\u2011Fi in the library keeps disconnecting since yesterday.",
+      "priority": "normal",
+      "status": "open",
+      "created_at": "2026-10-28T14:19:29",
+      "expected_response": "1 working day"
+    },
+    {
+      "ticket_id": "TKT-0013",
+      "student_id": "S1003",
+      "category": "other",
+      "subject": "No water supply on campus",
+      "description": "Student reports that there is no water available on campus and requests a resolution.",
+      "priority": "normal",
+      "status": "open",
+      "created_at": "2026-10-28T14:25:06",
+      "expected_response": "3 working days"
+    },
+    {
+      "ticket_id": "TKT-0014",
+      "student_id": "S1005",
+      "category": "finance",
+      "subject": "Scholarship funds not received",
+      "description": "Student reports that scholarship funds have not been credited to their scholarship account.",
+      "priority": "normal",
+      "status": "open",
+      "created_at": "2026-10-28T14:30:12",
+      "expected_response": "2 working days"
     }
   ]
 }

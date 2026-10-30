@@ -87,7 +87,7 @@ The system has four layers:
 
 | Folder | Contains |
 |---|---|
-| `architecture/` | The diagrams (PNG and SVG) and `make_diagrams.py`, which regenerates them |
+| `architecture/` | The architecture and evaluation diagrams (PNG) |
 | `MD/` | This explanation, plus run notes (`1.md`) |
 | `AAIE1/` | Python virtual environment |
 | `README.md` | Setup, demo script and full evaluation table |

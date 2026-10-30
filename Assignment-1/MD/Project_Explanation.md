@@ -88,8 +88,8 @@ The system has four layers:
 | Folder | Contains |
 |---|---|
 | `architecture/` | The architecture and evaluation diagrams (PNG) |
-| `MD/` | This explanation, plus run notes (`1.md`) |
-| `AAIE1/` | Python virtual environment |
+| `MD/` | This explanation |
+| `../AAIE1/` | Python virtual environment (at the repo root, shared by both assignments) |
 | `README.md` | Setup, demo script and full evaluation table |
 
 ---

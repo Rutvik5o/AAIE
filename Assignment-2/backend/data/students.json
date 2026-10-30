@@ -1,0 +1,134 @@
+{
+  "students": [
+    {
+      "student_id": "S1001",
+      "name": "Aarav Mehta",
+      "programme": "MBA",
+      "year": 1,
+      "email": "aarav.mehta@northbridge.edu",
+      "status": "active",
+      "courses": ["Financial Accounting", "Marketing Management", "Business Statistics"],
+      "fees": {
+        "term": "Term 2 (2026-27)",
+        "total": 185000,
+        "paid": 120000,
+        "due": 65000,
+        "due_date": "2026-11-15",
+        "currency": "INR",
+        "late_fee": 0,
+        "last_payment": {"amount": 120000, "date": "2026-07-10", "method": "Net banking"},
+        "system_unavailable": false
+      },
+      "scholarship": {
+        "name": "Merit Scholarship",
+        "status": "approved",
+        "amount": 50000,
+        "notes": "Adjusted against Term 2 fees"
+      }
+    },
+    {
+      "student_id": "S1002",
+      "name": "Priya Sharma",
+      "programme": "BBA",
+      "year": 2,
+      "email": "priya.sharma@northbridge.edu",
+      "status": "active",
+      "courses": ["Business Law", "Organisational Behaviour", "Principles of Economics"],
+      "fees": {
+        "term": "Term 2 (2026-27)",
+        "total": 75000,
+        "paid": 75000,
+        "due": 0,
+        "due_date": "2026-11-15",
+        "currency": "INR",
+        "late_fee": 0,
+        "last_payment": {"amount": 75000, "date": "2026-10-20", "method": "UPI"},
+        "system_unavailable": false
+      },
+      "scholarship": {
+        "name": "Need-Based Scholarship",
+        "status": "rejected",
+        "amount": 0,
+        "notes": "Application rejected in first round (2026-10-23): family income above the ₹8,00,000 threshold. Appeal window 10 working days."
+      }
+    },
+    {
+      "student_id": "S1003",
+      "name": "Rohan Iyer",
+      "programme": "B.Tech CSE",
+      "year": 3,
+      "email": "rohan.iyer@northbridge.edu",
+      "status": "active",
+      "courses": ["Operating Systems", "Computer Networks", "Machine Learning"],
+      "fees": {
+        "term": "Term 1 (2026-27) - instalment 2",
+        "total": 110000,
+        "paid": 62000,
+        "due": 48000,
+        "due_date": "2026-10-15",
+        "currency": "INR",
+        "late_fee": 5500,
+        "last_payment": {"amount": 62000, "date": "2026-07-14", "method": "Debit card"},
+        "system_unavailable": false
+      },
+      "scholarship": {
+        "name": "None",
+        "status": "none",
+        "amount": 0,
+        "notes": "No scholarship application on record for 2026-27"
+      }
+    },
+    {
+      "student_id": "S1004",
+      "name": "Ananya Reddy",
+      "programme": "M.Tech Data Science",
+      "year": 1,
+      "email": "ananya.reddy@northbridge.edu",
+      "status": "active",
+      "courses": ["Deep Learning", "Big Data Systems", "Applied Statistics"],
+      "fees": {
+        "term": "Term 2 (2026-27)",
+        "total": 140000,
+        "paid": 70000,
+        "due": 70000,
+        "due_date": "2026-11-15",
+        "currency": "INR",
+        "late_fee": 0,
+        "last_payment": {"amount": 70000, "date": "2026-10-05", "method": "NEFT"},
+        "system_unavailable": false
+      },
+      "scholarship": {
+        "name": "Need-Based Scholarship",
+        "status": "under_review",
+        "amount": 35000,
+        "notes": "Second-round review; result expected by 2026-11-30. Pay fees as normal until approved."
+      }
+    },
+    {
+      "student_id": "S1005",
+      "name": "Vikram Nair",
+      "programme": "PGDM",
+      "year": 2,
+      "email": "vikram.nair@northbridge.edu",
+      "status": "active",
+      "courses": ["Strategic Management", "Corporate Finance", "Supply Chain Analytics"],
+      "fees": {
+        "term": "Term 2 (2026-27)",
+        "total": 185000,
+        "paid": 100000,
+        "due": 85000,
+        "due_date": "2026-11-15",
+        "currency": "INR",
+        "late_fee": 0,
+        "last_payment": {"amount": 100000, "date": "2026-07-12", "method": "Credit card"},
+        "system_unavailable": true
+      },
+      "scholarship": {
+        "name": "Sports Scholarship",
+        "status": "approved",
+        "amount": 40000,
+        "notes": "State-level badminton; adjusted against Term 2 and Term 3 fees"
+      }
+    }
+  ]
+}

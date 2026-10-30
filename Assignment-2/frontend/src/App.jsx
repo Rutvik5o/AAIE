@@ -1,0 +1,224 @@
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, MessageSquare, BarChart3, ShieldCheck } from "lucide-react";
+import * as api from "./api";
+import Login from "./components/Login";
+import Sidebar from "./components/Sidebar";
+import ChatView from "./components/ChatView";
+import EvalView from "./components/EvalView";
+import AuditView from "./components/AuditView";
+import Toast from "./components/Toast";
+import Background from "./components/Background";
+import ThemeToggle from "./components/ThemeToggle";
+import Logo from "./components/Logo";
+import { useTheme } from "./theme";
+
+const TABS = [
+  { id: "chat", label: "Chat", icon: MessageSquare },
+  { id: "eval", label: "Evaluation", icon: BarChart3 },
+  { id: "audit", label: "Audit", icon: ShieldCheck },
+];
+
+function loadStudent() {
+  try {
+    return JSON.parse(sessionStorage.getItem("campus_student"));
+  } catch {
+    return null;
+  }
+}
+
+function saveStudent(student) {
+  try {
+    if (student) sessionStorage.setItem("campus_student", JSON.stringify(student));
+    else sessionStorage.removeItem("campus_student");
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export default function App() {
+  const [student, setStudent] = useState(() => (api.getToken() ? loadStudent() : null));
+  const [loginNotice, setLoginNotice] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [facts, setFacts] = useState([]);
+  const [tab, setTab] = useState("chat");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, toggleTheme] = useTheme();
+
+  useEffect(() => {
+    api.setUnauthorizedHandler(() => {
+      saveStudent(null);
+      setStudent(null);
+      setLoginNotice("Session expired. Please log in again.");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!student) return;
+    startSession();
+    refreshMemory();
+  }, [student]);
+
+  function handleLogin(res) {
+    api.setToken(res.token);
+    saveStudent(res.student);
+    setLoginNotice(null);
+    setTab("chat");
+    setStudent(res.student);
+  }
+
+  async function handleLogout() {
+    await api.logout();
+    api.setToken(null);
+    saveStudent(null);
+    setStudent(null);
+    setMessages([]);
+    setFacts([]);
+  }
+
+  async function startSession() {
+    setMessages([]);
+    try {
+      const res = await api.newSession();
+      setSessionId(res?.session_id);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function refreshMemory() {
+    try {
+      const res = await api.getMemory();
+      setFacts(res?.facts || []);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  async function forgetAll() {
+    try {
+      await api.clearMemory();
+      setFacts([]);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
+  const updateLast = (fn) => setMessages((m) => [...m.slice(0, -1), fn(m[m.length - 1])]);
+
+  function onStreamEvent(event, data) {
+    if (event === "status") updateLast((msg) => ({ ...msg, status: data }));
+    if (event === "token") updateLast((msg) => ({ ...msg, content: msg.content + data.text }));
+    if (event === "reset") updateLast((msg) => ({ ...msg, content: "" }));
+  }
+
+  async function run(userText, start) {
+    if (sending) return;
+    setMessages((m) => [
+      ...m,
+      ...(userText ? [{ role: "user", content: userText }] : []),
+      { role: "assistant", content: "", streaming: true, status: { text: "Connecting" } },
+    ]);
+    setSending(true);
+    try {
+      const res = await start(onStreamEvent);
+      updateLast(() => ({ role: "assistant", content: res.answer, trace: res.trace, pending: res.pending_action }));
+      refreshMemory();
+    } catch (e) {
+      updateLast(() => ({ role: "assistant", content: e.message, error: true }));
+      setError(e.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const send = (text) => text.trim() && run(text, (onEvent) => api.streamChat(sessionId, text, onEvent));
+
+  function decide(index, approved) {
+    setMessages((m) =>
+      m.map((msg, i) => (i === index ? { ...msg, decision: approved ? "approved" : "rejected" } : msg))
+    );
+    run(null, (onEvent) => api.streamApprove(messages[index].pending.action_id, approved, onEvent));
+  }
+
+  if (!student)
+    return (
+      <>
+        <Background />
+        <Login notice={loginNotice} onLogin={handleLogin} theme={theme} onToggleTheme={toggleTheme} />
+      </>
+    );
+
+  return (
+    <div className="relative flex h-screen overflow-hidden font-sans">
+      <Background />
+
+      <Sidebar
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        student={student}
+        onLogout={handleLogout}
+        onNewSession={() => {
+          startSession();
+          setMenuOpen(false);
+        }}
+        sessionId={sessionId}
+        facts={facts}
+        onForget={forgetAll}
+      />
+
+      <main className="relative z-10 flex flex-1 flex-col min-w-0">
+        <header className="flex items-center gap-3 px-4 md:px-8 py-4 border-b border-line">
+          <button className="md:hidden p-2 rounded-lg glass text-muted hover:text-fg" onClick={() => setMenuOpen(true)}>
+            <Menu size={18} />
+          </button>
+          <Logo size={34} className="md:hidden" />
+          <nav className="glass rounded-xl p-1 flex gap-1">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={`relative px-3 sm:px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors ${
+                  tab === id ? "text-white" : "text-muted hover:text-fg"
+                }`}
+              >
+                {tab === id && (
+                  <motion.span
+                    layoutId="tab-pill"
+                    className="absolute inset-0 rounded-lg bg-brand-gradient glow"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <Icon size={16} className="relative" />
+                <span className="relative">{label}</span>
+              </button>
+            ))}
+          </nav>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} className="ml-auto" />
+        </header>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={tab}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22 }}
+            className="flex-1 min-h-0 flex flex-col"
+          >
+            {tab === "chat" && (
+              <ChatView messages={messages} sending={sending} onSend={send} onDecide={decide} />
+            )}
+            {tab === "eval" && <EvalView onError={setError} />}
+            {tab === "audit" && <AuditView onError={setError} />}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      <Toast message={error} onClose={() => setError(null)} />
+    </div>
+  );
+}
